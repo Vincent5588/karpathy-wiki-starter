@@ -4,7 +4,7 @@
 > 規範你在維護本 vault 時要遵守的結構、慣例、工作流程。
 > 模式來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 > Plugin release：**karpathy-wiki-pattern v1.4.3**（含 8 skills）
-> Vault patch：**v1.0**（模板初版）
+> Vault patch：**v1.1**（longform/atomize:false 規則 G 升級）
 
 ---
 
@@ -25,6 +25,7 @@
 | 版本 | 日期 | 主要變動 |
 |------|------|---------|
 | **v1.0** | **2026-01-01** | 模板初版建立（基於 karpathy-wiki-pattern v1.4.3，規則 A-M）|
+| **v1.1** | **2026-05-11** | **Longform / `atomize: false` 完整支援**：(a) §3.1 Step 3 加分流（atomize:true 建 N 個 / atomize:false 建 1 個 longform）；(b) §3.1.1 完整重寫——三層優先序 + 對照表 + Longform body 兩種模式（X 外部 / Y 個人）；(c) §4 type 詞彙表加 `longform`（9 種）；(d) `Templates/Longform Note.md` entity wrapper 結構；(e) `00-Inbox/longform/` 自動觸發 atomize:false；(f) `Wiki_維護觸發規則.md` §1 加 atomize:false 對照欄；(g) 各 PARA 資料夾 README sync。同步於 Vincent5588 v1.3.28 + IT-WIKI 規則 G。**設計修正**：早期把 atomize:false 設成「跳過 entity」是錯的——應該「建 1 個 entity 不拆」，否則 longform 跟知識網脫節。|
 
 ---
 
@@ -124,52 +125,112 @@ my-wiki/
 當使用者說「處理 00-Inbox/xxx」、「ingest xxx」、「依 CLAUDE.md 處理這份檔」：
 
 ```
-0. 先跑規則 K Step 0 預檢（判斷 raw 性質，決定是否需要前處理）
-   - 偵測 atomize 旗標（三層優先序見 §3.1.1）
+0. 先跑規則 K Step 0 預檢（判斷 raw 性質，含 atomize 旗標——見 §3.1.1）
 1. 讀取 00-Inbox/{path}/{file}
 2. 跟使用者確認 / 討論關鍵重點（除非明確說「不要問直接做」）
-3. 對每個 atomic 概念：（atomize: false 時跳過此步）
-   a. 推論 domain（reuse-first，已有的 domain 優先用）
-   b. 推論 type（標準 8 種詞彙,reuse-first）
-   c. 寫到 wiki/entities/<domain>/<type>/<basename>.md
-3.5 raw 含圖則下載 + 本地引用（見規則 I）：
+3. 建立 entity（兩種模式）：
+   - atomize: true（預設）：對每個 atomic 概念分別建一個 entity
+     a. 推論 domain（reuse-first，已有的 domain 優先用）
+     b. 推論 type（標準 9 種詞彙含 longform，reuse-first）
+     c. 寫到 wiki/entities/<domain>/<type>/<basename>.md
+   - atomize: false：整份 raw 合成 1 個 longform entity（不拆）
+     a. 推論 domain（同上）
+     b. type 固定為 longform
+     c. 寫到 wiki/entities/<domain>/longform/<basename>.md
+     d. body 含 entity wrapper（摘要 + 核心要點 + 關係 sections + 原文 + 待解）
+3.5 raw 含圖則下載 + 本地引用（見規則 I）：兩種模式都做
    a. 識別 raw 內所有 ![alt](url) 外部圖片
    b. 下載到 Attachments/<source-basename>/<NN>-<short-desc>.<ext>
    c. entity 引用改本地
-4. 為相關既有概念加 backlink（避免孤兒頁）（atomize: false 跳過）
+4. 為相關既有概念加 backlink（兩種模式都做）
 5. 標記與既有 wiki 的矛盾，提醒使用者
-6. 更新 wiki/index.md（⚠️ 必做，但 atomize: false 跳過——沒新 entity）
-7. 寫 wiki/daily/YYYY/MM/YYYY-MM-DD.md（⚠️ 必做，atomize 兩種情況都要）
-8. 依 PARA_ROUTING 提案 raw 目的地（⚠️ 兩種情況都要）
+6. 更新 wiki/index.md（兩種模式都做——longform entity 也算新 entity）
+7. 寫 wiki/daily/YYYY/MM/YYYY-MM-DD.md
+8. 依 PARA_ROUTING 提案 raw 目的地
 9. 等使用者裁決，才搬 raw 檔
 10. 同步更新所有引用該 raw 的 entity（frontmatter source: + 內文引用）
+11. 回報使用者：影響了哪些頁、矛盾、後續該調查的主題
 ```
 
-#### 3.1.1 Atomize 判斷（三層優先序）
+#### 3.1.1 Atomize 判斷（三層優先序 + Longform body 結構）
 
-LLM 在 Step 0 預檢時依下列優先序決定該 raw 是否拆 atomic：
+LLM 在 Step 0 預檢時依下列三層優先序決定該 raw 怎麼建 entity：
 
 | 優先序 | 來源 | 規則 |
 |-------|------|------|
-| 1 | frontmatter `atomize:` 明確指定 | **永遠優先**（true / false 都尊重）|
+| 1 | frontmatter `atomize:` 明確指定 | 永遠優先（true / false 都尊重）|
 | 2 | 路徑含 `longform/` 子資料夾（如 `00-Inbox/longform/`）| 預設 `atomize: false` |
 | 3 | 預設 | `atomize: true`（拆 atomic）|
 
-**`atomize: false` 的影響**：
-- ❌ 跳過 Step 3 / 3.5（不抽 atomic entity、不下載圖到 Attachments）
-- ❌ 跳過 Step 6（不更新 wiki/index.md——沒新 entity）
-- ✅ 仍走 Step 7-10（寫 daily log + PARA 路由 + 提案目的地）
+**重要**：`atomize: false` **不是「跳過 entity 建立」**，是「**建 1 個 longform entity 不拆**」。所有 cascade（index / daily log / routing）跟標準 ingest 一樣做。
 
-**Longform 預設路由目的地**：
+##### atomize:true vs atomize:false 對照
 
-| 內容性質 | 建議目的地 |
-|---------|----------|
-| 個人完整觀點 / 心得 / 敘事 | `10-Notes/longform/` |
-| 書評 / 完整摘要（屬主題集）| `40-Resources/<主題>/` |
-| 某 area 的長文 | `30-Areas/<area>/` |
-| 旅遊 / 日記體 | `10-Notes/journal/` 或 `30-Areas/travel/` |
-11. 回報使用者：影響了哪些頁、矛盾、後續該調查的主題
+| 步驟 | atomize: true（預設）| atomize: false（longform）|
+|------|---------------------|---------------------------|
+| Step 3 建 entity 數 | N 個（每 atomic 一個）| **1 個**（type=longform）|
+| Step 3 entity 路徑 | `wiki/entities/<domain>/<type>/` | `wiki/entities/<domain>/longform/` |
+| Step 3 entity body | 精煉版 | 摘要 wrapper + 原文完整保留（或連結到原文）|
+| Step 4 backlink | ✅ | ✅ |
+| Step 6 更新 index | ✅ | ✅ |
+| Step 7 daily log | ✅ | ✅ |
+| Step 8 PARA routing raw | ✅ | ✅ |
+
+→ **唯一差別**：模式 B 只建 1 個 entity，body 保留完整長文。其他完全一樣。
+
+##### Longform entity body 必備結構（兩種模式）
+
+**模式 X — 外部 longform**（網頁文章 / 訪談逐字稿，raw 另外存在 PARA）：
+
+```markdown
+# 標題
+
+> 一句話摘要。
+
+## 核心要點
+
+- 重點 1（LLM 從原文提煉 5-7 條，用自己語言）
+- ...
+
+## 與其他概念的關係
+
+### 強連結
+- [[既有 entity A]] — 關係
+
+### 推斷連結
+- [[既有 entity B]] ?? — 推斷
+
+### 深入閱讀
+- **原文（完整版）**：[[40-Resources/<domain>/.../X|原檔]]
+- 相關 atomic：[[Y]] / [[Z]]
+
+## 待解 / 矛盾（如有）
+- ⚠️ ...
 ```
+
+**模式 Y — 個人 longform**（自己寫的心得 / 旅遊敘事，沒外部 raw）：
+
+```markdown
+（模式 X 全部 section）
+
+## 原文
+<個人長文完整內容，不拆解>
+```
+
+→ 沒有 wrapper 的 longform entity = 違反規則。lint 該偵測「longform type 但缺核心要點 / 關係 section」並標 🟡。
+
+##### Longform raw 路由目的地（Step 8）
+
+| 內容性質 | raw 路由到 | entity 在 |
+|---------|----------|----------|
+| 別人寫的完整文章 | `40-Resources/<domain>/<sub>/` | `wiki/entities/<domain>/longform/<X>.md` |
+| 個人完整觀點 / 心得 | 不必另外搬（entity 本身即內容）| `wiki/entities/<domain>/longform/<X>.md` |
+| 旅遊 / 日記敘事 | `10-Notes/journal/` 或 `30-Areas/<area>/` | 同上 |
+
+##### 用途配套
+
+- 立即可用模板：`Templates/Longform Note.md`
+- 預設 longform 資料夾：`00-Inbox/longform/`（自動觸發 atomize:false）
 
 **每次 ingest 必更新的檔案清單（速查）**：
 
@@ -263,6 +324,9 @@ aliases: [別名1]                  # 選填
 | `system` | 系統 / 服務 / 工具 | Obsidian、Notion、GitHub Actions |
 | `rule` | 規則 / 政策 / 約束 | 程式碼規範、命名慣例 |
 | `person` | 真實人物 | Andrej Karpathy |
+| `longform` | 長文 entity（不拆 atomic，body 保留完整內容 + entity wrapper）| 旅遊心得長文、書評、完整外部文章 |
+
+**注意**：`longform` type 的 entity **必須**含 entity wrapper（摘要 + 核心要點 + 關係 section + 原文 + 待解）——詳見 §3.1.1。
 
 ### status 詞彙精確化說明
 
@@ -543,7 +607,7 @@ WHERE status = "draft"
 
 | Raw 內容 | 偵測規則 | 自動提案 |
 |---------|---------|---------|
-| **frontmatter `atomize: false`** 或 **路徑含 `longform/`** | longform / 不想拆解 | **跳過 atomic 抽取**，仍走 Step 7-10（daily log + PARA 路由）。詳見 §3.1.1 |
+| **frontmatter `atomize: false`** 或 **路徑含 `longform/`** | longform / 不想拆解 | **建 1 個 longform entity**（type=longform，body 含摘要 + 關係 + 原文 wrapper），不拆成 N 個 atomic。其他 cascade（index / daily / routing）全做。詳見 §3.1.1 |
 | **frontmatter `pending_action: youtube-skill`** | YouTube 影片 clip | 直接 chain youtube-to-notebooklm |
 | **裸 YT URL**（檔長 < 300 bytes + YT URL） | URL-only 偵測 | 「先跑 youtube-to-notebooklm skill 產繁中報告？」|
 | **大量英文文章**（≥ 30% 英文 + 檔長 > 5 KB） | 語言比例 | 「丟 NotebookLM 產繁中摘要 → 從摘要 ingest？或直接 50-Archive？」|
