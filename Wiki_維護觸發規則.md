@@ -54,6 +54,7 @@ cssclasses: [wide]
 |------|------|
 | [[WIKI_TODO]] | 衍生待辦事項、「最後更新」日期 |
 | [[Wiki_專有名詞對照表]] | 若新 entity 含**未收錄的英文專有名詞** → 加新 row |
+| [[Wiki_儀表板]] | bump「最近動態」+ entity 計數快照 |
 
 ### 💬 必做：chat 報告
 
@@ -85,12 +86,14 @@ echo "map 總數：$(find $VAULT/wiki/maps -name '*.md' | wc -l)"
 | `wiki/reports/LINT/YYYY/MM/LINT_<TS>.json` | 原始輸出（lint.py 自動寫）|
 | `wiki/daily/YYYY/MM/YYYY-MM-DD.md` | 一行紀錄「Lint Score N/100」+ 主要問題摘要 |
 | `wiki/PROGRESS.md` | 「系統健康狀態」區塊的 Lint Score 數字 |
+| [[Wiki_健康度監控]] | 追加一 row（時點 / Score / Orphans / Missing / God / Collisions / 觸發事件）|
 
 ### 🟡 建議更新
 
 | 檔案 | 改什麼 |
 |------|------|
 | [[WIKI_TODO]] | High Priority 修補項加入 todo |
+| [[Wiki_儀表板]] | 「健康狀態快照」table 數字同步 |
 
 ### 💬 chat 報告
 
@@ -134,6 +137,8 @@ echo "map 總數：$(find $VAULT/wiki/maps -name '*.md' | wc -l)"
 |------|------|------|
 | Archive 移到 `wiki/_archive/` | deprecated + 6 月無查詢 | 留 git history、寫 daily log |
 | Delete（git rm） | deprecated + 12 月無查詢 | **show before write**（規則 E），daily log 必須記錄判斷依據 |
+
+→ archive / delete 詳細 SOP + 追蹤表見 [[Wiki_刪檔處理SOP]]。任何刪檔動作必依該 SOP 走「Active → 50-Archive → 30 天 → Delete」三層緩衝期。
 
 ---
 
