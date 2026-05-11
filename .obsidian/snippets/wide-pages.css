@@ -1,0 +1,16 @@
+/* wide-pages.css
+ * 用途：讓帶有 cssclasses: [wide] 的筆記突破 Obsidian 預設 readable line length（~700px）限制
+ * 啟用方式：Settings → Appearance → CSS snippets → 啟用 wide-pages
+ * 適用場景：含大型表格的 daily log、MOC、監控報表等筆記
+ */
+
+.wide .markdown-preview-view,
+.wide .markdown-source-view {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.wide .markdown-preview-sizer,
+.wide .cm-content {
+  max-width: 100% !important;
+}

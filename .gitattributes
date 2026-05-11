@@ -1,0 +1,13 @@
+# 統一換行符為 LF（跨平台一致，Obsidian 在 Mac/Windows 都能用）
+* text=auto eol=lf
+*.md text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.gitkeep text eol=lf
+
+# 圖片/附件不做換行轉換
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary

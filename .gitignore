@@ -1,0 +1,14 @@
+# Obsidian workspace files (per-machine state)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/plugins/*/data.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# 個人 daily notes（不 commit 進 template）
+00-Inbox/Daily/
+
+# 個人筆記（如果你不想 commit 進 repo）
+# 10-Notes/
