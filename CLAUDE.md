@@ -125,23 +125,49 @@ my-wiki/
 
 ```
 0. 先跑規則 K Step 0 預檢（判斷 raw 性質，決定是否需要前處理）
+   - 偵測 atomize 旗標（三層優先序見 §3.1.1）
 1. 讀取 00-Inbox/{path}/{file}
 2. 跟使用者確認 / 討論關鍵重點（除非明確說「不要問直接做」）
-3. 對每個 atomic 概念：
+3. 對每個 atomic 概念：（atomize: false 時跳過此步）
    a. 推論 domain（reuse-first，已有的 domain 優先用）
-   b. 推論 type（標準 8 種詞彙，reuse-first）
+   b. 推論 type（標準 8 種詞彙,reuse-first）
    c. 寫到 wiki/entities/<domain>/<type>/<basename>.md
 3.5 raw 含圖則下載 + 本地引用（見規則 I）：
    a. 識別 raw 內所有 ![alt](url) 外部圖片
    b. 下載到 Attachments/<source-basename>/<NN>-<short-desc>.<ext>
    c. entity 引用改本地
-4. 為相關既有概念加 backlink（避免孤兒頁）
+4. 為相關既有概念加 backlink（避免孤兒頁）（atomize: false 跳過）
 5. 標記與既有 wiki 的矛盾，提醒使用者
-6. 更新 wiki/index.md（⚠️ 必做：新增條目連結 + 更新 header 計數/日期）
-7. 寫 wiki/daily/YYYY/MM/YYYY-MM-DD.md（⚠️ 必做，見 §15）
-8. 依 PARA_ROUTING 提案 raw 目的地
+6. 更新 wiki/index.md（⚠️ 必做，但 atomize: false 跳過——沒新 entity）
+7. 寫 wiki/daily/YYYY/MM/YYYY-MM-DD.md（⚠️ 必做，atomize 兩種情況都要）
+8. 依 PARA_ROUTING 提案 raw 目的地（⚠️ 兩種情況都要）
 9. 等使用者裁決，才搬 raw 檔
 10. 同步更新所有引用該 raw 的 entity（frontmatter source: + 內文引用）
+```
+
+#### 3.1.1 Atomize 判斷（三層優先序）
+
+LLM 在 Step 0 預檢時依下列優先序決定該 raw 是否拆 atomic：
+
+| 優先序 | 來源 | 規則 |
+|-------|------|------|
+| 1 | frontmatter `atomize:` 明確指定 | **永遠優先**（true / false 都尊重）|
+| 2 | 路徑含 `longform/` 子資料夾（如 `00-Inbox/longform/`）| 預設 `atomize: false` |
+| 3 | 預設 | `atomize: true`（拆 atomic）|
+
+**`atomize: false` 的影響**：
+- ❌ 跳過 Step 3 / 3.5（不抽 atomic entity、不下載圖到 Attachments）
+- ❌ 跳過 Step 6（不更新 wiki/index.md——沒新 entity）
+- ✅ 仍走 Step 7-10（寫 daily log + PARA 路由 + 提案目的地）
+
+**Longform 預設路由目的地**：
+
+| 內容性質 | 建議目的地 |
+|---------|----------|
+| 個人完整觀點 / 心得 / 敘事 | `10-Notes/longform/` |
+| 書評 / 完整摘要（屬主題集）| `40-Resources/<主題>/` |
+| 某 area 的長文 | `30-Areas/<area>/` |
+| 旅遊 / 日記體 | `10-Notes/journal/` 或 `30-Areas/travel/` |
 11. 回報使用者：影響了哪些頁、矛盾、後續該調查的主題
 ```
 
@@ -517,6 +543,7 @@ WHERE status = "draft"
 
 | Raw 內容 | 偵測規則 | 自動提案 |
 |---------|---------|---------|
+| **frontmatter `atomize: false`** 或 **路徑含 `longform/`** | longform / 不想拆解 | **跳過 atomic 抽取**，仍走 Step 7-10（daily log + PARA 路由）。詳見 §3.1.1 |
 | **frontmatter `pending_action: youtube-skill`** | YouTube 影片 clip | 直接 chain youtube-to-notebooklm |
 | **裸 YT URL**（檔長 < 300 bytes + YT URL） | URL-only 偵測 | 「先跑 youtube-to-notebooklm skill 產繁中報告？」|
 | **大量英文文章**（≥ 30% 英文 + 檔長 > 5 KB） | 語言比例 | 「丟 NotebookLM 產繁中摘要 → 從摘要 ingest？或直接 50-Archive？」|

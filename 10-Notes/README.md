@@ -1,16 +1,50 @@
-# 10-Notes — 永久筆記（Zettelkasten 風格）
+# 10-Notes — 永久筆記（atomic + longform 並存）
 
-> **PARA 第 1 層：你「整理好的、想長期保留」的個人想法卡片**
+> **PARA 第 1 層：你「整理好的、想長期保留」的個人筆記**
 
 ## 📌 用途（給人）
 
-放**經過你思考、用自己語言寫的永久筆記**。不是收集（那是 00-Inbox 的事），不是專案進度（那是 20-Projects 的事），不是查資料（那是 40-Resources 的事）——是**你的觀點、你的綜合、你的概念連結**。
+放**經過你思考、用自己語言寫的永久筆記**。不是收集（那是 00-Inbox 的事），不是專案進度（那是 20-Projects 的事），不是查資料（那是 40-Resources 的事）——是**你的觀點、你的綜合、你的個人作品**。
+
+**兩種類型並存**：
+
+| 類型 | 性質 | 範例 |
+|------|------|------|
+| **Atomic（Zettelkasten 卡片）** | 一張卡一個概念，會被 LLM ingest 抽 entity | 想到的點子、對某概念的綜合 |
+| **Longform（完整作品）** | 一份完整心得 / 敘事 / 長文，**不拆** | 旅遊心得、完整書評、個人觀點長文 |
 
 **典型內容**：
-- 讀了 5 篇文章後你綜合出的一個觀點
-- 想到的點子（已成形、能寫成一段話）
-- 對某概念的個人理解（不只是抄筆記）
-- Zettelkasten 風格的 atomic note（一張卡只講一個概念）
+- 讀了 5 篇文章後你綜合出的一個觀點（atomic）
+- 想到的點子（已成形、能寫成一段話）（atomic）
+- 對某概念的個人理解（不只是抄筆記）（atomic）
+- 旅遊心得 / 流水帳（longform）
+- 完整書評（你想當「一份作品」保留，不是知識卡片）（longform）
+
+## 🗂 子資料夾建議
+
+```
+10-Notes/
+├── atomic/          ← Zettelkasten 卡片（會被 LLM 引用做 entity source）
+├── longform/        ← 完整心得 / 敘事 / 長文（不拆）
+├── journal/         ← 日記式紀錄
+└── （或直接平鋪）
+```
+
+或不分子資料夾，靠 frontmatter `atomize:` 區分（見下方）。
+
+## 🏷 frontmatter 慣例
+
+```yaml
+---
+title: "..."
+type: longform              # 或 atomic / journal
+atomize: false              # longform 必加，atomic 不加（預設 true）
+status: draft | stable
+created: YYYY-MM-DD
+---
+```
+
+**`atomize: false`** 告訴 LLM「這份不要拆 atomic」。Obsidian Properties 面板會自動顯示為 checkbox。
 
 ## ✅ 何時放東西進來
 

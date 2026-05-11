@@ -23,3 +23,13 @@
 
 `00-Inbox/Daily/` 放你的每日個人筆記，使用 `Templates/Personal Daily.md` 模板。  
 這些不會被 ingest 到 wiki，是你的私人記事本。
+
+## longform/ 子資料夾
+
+`00-Inbox/longform/` 放**想保留完整、不想被拆 atomic** 的素材（個人心得 / 旅遊紀錄 / 完整書評等）。
+
+LLM ingest 時看到路徑含 `longform/` → 預設 `atomize: false`：
+- ❌ 不拆 atomic entity
+- ✅ 仍做 PARA 路由 + 寫 daily log
+
+詳見 [longform/README.md](longform/README.md) 或 `Templates/Longform Note.md`。
