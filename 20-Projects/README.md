@@ -32,11 +32,25 @@
 ## 🤖 LLM 行為規範
 
 - ✅ LLM 可從 `00-Inbox/` 把專案相關 raw 路由到對應 `20-Projects/<X>/` 子分類
-- ✅ ingest 時可從這裡的檔抽 entity 到 `wiki/entities/`
+- ✅ ingest 時可從這裡的檔抽 entity 到 `wiki/entities/`（依使用者明確指定）
 - ✅ 專案完成後使用者明確說「歸檔 X」→ LLM 可移到 `50-Archive/`
 - ❌ **不刪除、不修改既有檔案內容**（規則 C）
 - ❌ 不自動判定「這專案結束了」搬去 archive——使用者決定
 - ❌ 不重命名子資料夾（影響既有 wiki-link）
+- ❌ **不主動掃描** 20-Projects/ 找東西 ingest（規則 C；使用者明確指定才掃）
+
+## 📥 Longform 路由（atomize: false）
+
+從 `00-Inbox/longform/` 路由過來的 raw（譬如「Q1 簡報事後回顧長文」「某專案 lessons learned 完整版」）可以放：
+
+```
+20-Projects/<專案名>/
+├── retrospective.md     ← longform 心得
+├── lessons-learned.md   ← longform 教訓總結
+└── ...
+```
+
+→ LLM 看 `atomize: false` 時不抽 atomic entity，只搬檔到此 + 寫 daily log。詳見 [[CLAUDE]] §3.1.1。
 
 ## 🆚 跟其他層比較
 

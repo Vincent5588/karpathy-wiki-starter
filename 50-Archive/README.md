@@ -36,11 +36,22 @@
 ## 🤖 LLM 行為規範
 
 - ✅ LLM 可從 20/30/40 搬檔過來（使用者批准後）
-- ✅ ingest 時**仍可**從這裡的檔當 source（archive ≠ 看不到）
+- ✅ ingest 時**仍可**從這裡的檔當 source（archive ≠ 看不到，但需使用者明確指定）
 - ✅ 使用者明確說「真的刪 X」→ 走 [[Wiki_刪檔處理SOP]] 真刪
 - ❌ **不主動刪 archive 內檔**——archive 是緩衝區，30 天觀察期由使用者決定
 - ❌ 不批次清理 archive（規則 C：永不刪除）
 - ❌ 不重命名 archive 子資料夾
+- ❌ **永不主動掃描** 50-Archive 找東西 ingest（即使有更新也不主動提示——archive 不該動）
+
+## 📥 Longform 不直接路由到 archive
+
+`00-Inbox/longform/` 內檔**不該**直接路由到 50-Archive——archive 是「曾經活躍、現在不活躍」的資料層。
+
+正確流程：
+1. longform raw 先路由到 `10-Notes/longform/` 或 `30-Areas/<area>/` 等活躍層
+2. 之後該檔不再活躍 → 才搬到 `50-Archive/`
+
+詳見 [[CLAUDE]] §3.1.1（longform 預設路由表沒列 50-Archive）。
 
 ## 🆚 跟「真正刪除」的差異
 

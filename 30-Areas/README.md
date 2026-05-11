@@ -32,11 +32,30 @@
 ## 🤖 LLM 行為規範
 
 - ✅ LLM 可從 `00-Inbox/` 把 area 相關 raw 路由到對應 `30-Areas/<area>/<子分類>/`
-- ✅ ingest 時可從這裡的檔抽 entity 到 `wiki/entities/`
+- ✅ ingest 時可從這裡的檔抽 entity 到 `wiki/entities/`（依使用者明確指定）
 - ✅ 使用者說「這個 area 我不再關注了」→ 提案搬 `50-Archive/`
 - ❌ **不刪除、不修改既有檔案內容**（規則 C）
 - ❌ 不自動把「久未更新的 area」搬去 archive——area 本來就可能靜默
 - ❌ 不重命名 area 子資料夾
+- ❌ **不主動掃描** 30-Areas/ 找東西 ingest（規則 C；使用者明確指定才掃）
+
+## 📥 Longform 路由（atomize: false）
+
+從 `00-Inbox/longform/` 路由過來的 raw（譬如「年度健康回顧」「某 area 完整心得長文」）可以放對應 area 子資料夾：
+
+```
+30-Areas/
+├── health/
+│   ├── 2026-年度回顧.md       ← longform
+│   └── 運動紀錄/
+├── travel/
+│   ├── 2026-京都心得.md       ← longform 旅遊紀錄
+│   └── ...
+└── work-role-PM/
+    └── 一年回顧.md            ← longform
+```
+
+→ LLM 看 `atomize: false` 時不抽 atomic entity，只搬檔到此 + 寫 daily log。詳見 [[CLAUDE]] §3.1.1。
 
 ## 🆚 跟其他層比較
 
