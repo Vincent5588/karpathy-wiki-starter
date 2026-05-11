@@ -71,9 +71,25 @@ Claude 的角色：閱讀 + 抽概念 + 建連結 + 整理
 ### 步驟
 
 **1. Clone 這個 repo**
+
 ```bash
-git clone https://github.com/<owner>/karpathy-wiki-starter.git my-wiki
+# 改 my-wiki 成你想要的 vault 名稱
+git clone https://github.com/Vincent5588/karpathy-wiki-starter.git my-wiki
+cd my-wiki
+
+# 把 git remote 移除（你不會 push 回我的 repo）
+git remote remove origin
+
+# （選用）把 git history 砍掉重來，從你自己的 v1.0 開始
+rm -rf .git
+git init
+git add -A
+git commit -m "init: my wiki vault (forked from karpathy-wiki-starter v1.0)"
 ```
+
+> ⚠️ **不要把 vault 放在 iCloud / OneDrive / Dropbox 同步路徑下**——這些雲服務會破壞 `.git/` 內檔，git 會壞。請放 `~/projects/` 或 `D:\projects\` 之類本機路徑。
+>
+> 想跨機同步 vault？用 git push 到你自己的 private repo 是最穩的方式。
 
 **2. 用 Obsidian 打開**
 - 開啟 Obsidian → Open folder as vault → 選 `my-wiki` 資料夾
