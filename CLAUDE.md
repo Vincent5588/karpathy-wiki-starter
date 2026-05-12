@@ -20,7 +20,7 @@
 
 ## 0. 版本歷程
 
-> **v1.7**（2026-05-12）。完整版本歷程：`CLAUDE_versions.md`。
+> **v1.7**（2026-05-12）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
 
 ---
 
@@ -59,8 +59,8 @@ my-wiki/
 ├── Templates/              ← 筆記模板
 ├── Attachments/            ← 圖片 / PDF 附件
 ├── Wiki操作文件/            ← wiki 維護文件（健康度監控 / 儀表板 / SOP / 觸發規則等）
-├── index.md                ← wiki 主目錄（必須能裝進單一 context window）
-└── CLAUDE_versions.md      ← CLAUDE.md 版本歷程 SSOT
+│   └── CLAUDE_versions.md  ← CLAUDE.md 版本歷程 SSOT
+└── index.md                ← wiki 主目錄（必須能裝進單一 context window）
 ```
 
 ---
