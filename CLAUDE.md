@@ -31,7 +31,8 @@ my-wiki/
 ├── 00-Inbox/               ← Layer 1：唯一 inbox
 │   │                          - 所有新素材的入口
 │   │                          - 內容唯讀，但檔案會被 ingest / PARA 路由搬走
-│   └── Daily/              ← 每日個人筆記
+│   ├── Daily/              ← 每日個人筆記
+│   └── longform/           ← inbox 路徑信號：自動觸發 atomize:false（建 1 個 entity 不拆）
 │
 ├── wiki/                   ← Layer 2：LLM 維護的編譯產物
 │   ├── entities/           ← v1.3 階層：<domain>/<type>/<basename>.md
@@ -47,7 +48,6 @@ my-wiki/
 │   ├── maps/               ← 跨主題 mermaid 地圖
 │   ├── daily/              ← 每日 wiki 操作日誌（按年月分層）
 │   ├── rules/              ← 拆出的規則詳細文件
-│   ├── index.md            ← 主目錄（必須能裝進單一 context window）
 │   └── PROGRESS.md         ← 新 session 必讀狀態面板
 │
 ├── 10-Notes/               ← PARA: 永久筆記（Zettelkasten）
@@ -57,7 +57,10 @@ my-wiki/
 │   └── <主題>/             （依 domain 內主題建子目錄分類）
 ├── 50-Archive/             ← PARA: 已封存
 ├── Templates/              ← 筆記模板
-└── Attachments/            ← 圖片 / PDF 附件
+├── Attachments/            ← 圖片 / PDF 附件
+├── Wiki操作文件/            ← wiki 維護文件（健康度監控 / 儀表板 / SOP / 觸發規則等）
+├── index.md                ← wiki 主目錄（必須能裝進單一 context window）
+└── CLAUDE_versions.md      ← CLAUDE.md 版本歷程 SSOT
 ```
 
 ---
@@ -76,7 +79,7 @@ my-wiki/
 
 - 攝取（Ingest）→ 建/改 `wiki/entities/<domain>/<type>/` 頁面
 - **必須同步**：
-  - **`wiki/index.md`**（⚠️ 每次 ingest 必做：新增條目連結 + 更新 header 計數/日期）
+  - **`index.md`**（⚠️ 每次 ingest 必做：新增條目連結 + 更新 header 計數/日期）
   - **`wiki/daily/YYYY/MM/YYYY-MM-DD.md`**（每次操作必寫日誌，見 §15）
 - 每頁必有 frontmatter（含必填欄位 `domain`、`type`、`status`——詳見 §4）
 
@@ -140,7 +143,7 @@ my-wiki/
    c. entity 引用改本地
 4. 為相關既有概念加 backlink（兩種模式都做）
 5. 標記與既有 wiki 的矛盾，提醒使用者
-6. 更新 wiki/index.md（兩種模式都做——atomize:false entity 也算新 entity）
+6. 更新 index.md（兩種模式都做——atomize:false entity 也算新 entity）
 7. 寫 wiki/daily/YYYY/MM/YYYY-MM-DD.md
 8. 依 PARA_ROUTING 提案 raw 目的地
 9. 等使用者裁決，才搬 raw 檔
@@ -236,7 +239,7 @@ LLM 在 Step 0 預檢時依下列三層優先序決定該 raw 怎麼建 entity�
 | # | 檔案 | 內容 | 步驟 |
 |---|------|------|------|
 | ① | `wiki/entities/<domain>/<type>/<X>.md` | 新建 / 更新 entity | step 3 |
-| ② | `wiki/index.md` | 新增條目連結 + 更新計數/日期 | step 6 |
+| ② | `index.md` | 新增條目連結 + 更新計數/日期 | step 6 |
 | ③ | `wiki/daily/YYYY/MM/YYYY-MM-DD.md` | 當日詳細異動 | step 7 |
 | ④ | entity frontmatter `source:` | routing 完成後更新路徑 | step 10 |
 | ⑤ | `Attachments/<source>/` | 下載 raw 中所有外部圖片到本地 | step 3.5 |
@@ -332,7 +335,7 @@ LLM：[建多個 atomic entity 而非 1 個 longform]
 當使用者問問題（如「根據 wiki，X 跟 Y 的差異是」）：
 
 ```
-1. 先讀 wiki/index.md 找相關概念
+1. 先讀 index.md 找相關概念
 2. 讀對應 wiki/entities/<domain>/<type>/X.md（不是讀 raw/）
 3. 綜合答案，引用用 [[wiki-link]]（用 basename，Obsidian 自動解析路徑）
 4. 如果 wiki 有缺：告訴使用者「wiki 沒這部分，要我從 00-Inbox/{x} ingest 嗎？」
@@ -475,7 +478,7 @@ status: deprecated → 不該引用；使用者特別要求才引用，並標明
 
 ---
 
-## 5. wiki/index.md 維護規則
+## 5. index.md 維護規則
 
 - **必須能裝進單一 context window**（建議 < 4000 token）
 - 用主題分類組織（按 domain，再依 type 細分），不用平鋪
@@ -787,7 +790,7 @@ cssclasses: [wide]
 
 ---
 
-← 回到 [[index|wiki/index.md]]
+← 回到 [[index|index.md]]
 ```
 
 ### `cssclasses: [wide]` 適用檔類
