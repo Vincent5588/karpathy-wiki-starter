@@ -4,7 +4,7 @@
 > 規範你在維護本 vault 時要遵守的結構、慣例、工作流程。
 > 模式來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 > Plugin release：**karpathy-wiki-pattern v1.4.3**（含 8 skills）
-> Vault patch：**v1.1**（longform/atomize:false 規則 G 升級）
+> Vault patch：**v1.7**（Phase 2 拆檔：Rules D-L + Heuristics 1-3 全移出主檔；規則 D 補技術名詞加繁中說明）
 
 ---
 
@@ -26,6 +26,12 @@
 |------|------|---------|
 | **v1.0** | **2026-01-01** | 模板初版建立（基於 karpathy-wiki-pattern v1.4.3，規則 A-M）|
 | **v1.1** | **2026-05-11** | **Longform / `atomize: false` 完整支援**：(a) §3.1 Step 3 加分流（atomize:true 建 N 個 / atomize:false 建 1 個 longform）；(b) §3.1.1 完整重寫——三層優先序 + 對照表 + Longform body 兩種模式（X 外部 / Y 個人）；(c) §4 type 詞彙表加 `longform`（9 種）；(d) `Templates/Longform Note.md` entity wrapper 結構；(e) `00-Inbox/longform/` 自動觸發 atomize:false；(f) `Wiki_維護觸發規則.md` §1 加 atomize:false 對照欄；(g) 各 PARA 資料夾 README sync。同步於 Vincent5588 v1.3.28 + IT-WIKI 規則 G。**設計修正**：早期把 atomize:false 設成「跳過 entity」是錯的——應該「建 1 個 entity 不拆」，否則 longform 跟知識網脫節。|
+| **v1.2** | **2026-05-11** | **§3.1.1.1 內容性質判定（Step 0.5）新增**：v1.1 atomize 三層判定（frontmatter / 路徑 / 預設）只用 metadata 信號，**沒考慮內容本質**——把旅遊敘事丟 00-Inbox/ 根目錄會無腦走 atomize:true 拆 atomic（破壞敘事）/ 把 8 個獨立技巧的長文丟 longform/ 會無腦建 1 longform（浪費 atomic 抽取機會）。**修正方向**：LLM 必須在 Step 1 前再做一次內容性質判定，用 4 criterion（獨立概念數 / 論證結構 / 引用價值 / 語境完整）客觀分析 → 若內容判定 ≠ 預設旗標就主動 chat 提案切換（規則 E show before write 配套）。雙向 case 都管：(a) default 路徑但內容該 longform → 提案改 longform；(b) longform 路徑但內容多 atomic → 提案改 atomic。例外：frontmatter `atomize:` 明確指定 / 使用者明確說「直接走預設」/ 內容判定 = 預設 → skip。反模式：每次 ingest 都做冗長 4 criterion 報告（只在預設 ≠ 內容判定時提案）/ 把內容判定當「使用者選錯資料夾」指責（這是客觀分析不是糾正）/ 假設 longform/ 路徑下檔一定該 longform（雙保險）。同步：[[Wiki_維護觸發規則]] §1 加 Step 0.5 row。同步來源：Vincent5588 v1.3.29。|
+| **v1.3** | **2026-05-11** | **規則 N 新增：雲盤 + git 紀律（single-writer policy）**：codify「雲盤跨機編輯 OK / git operations 只在一台機器的雲盤外位置」通則。經驗實證：雲盤同步機制跟 git low-level binary 檔（index / refs / objects）本質不相容——`.git/index` 兩機同時寫會產生 `index 2` / `index 3` 衝突副本，`.git/refs/heads/main` 被雲盤改名導致 git 找不到 HEAD。**三層架構**：(1) 雲盤 vault（純檔案，跨機 sync）→ (2) 雲盤外 git working tree（單寫者，譬如 `~/git-mirrors/<vault>/` 或 `D:\vault-git\<vault>\`，用 rsync / robocopy 腳本手動同步）→ (3) GitHub。**完整內容拆到** `wiki/rules/rule-N-cloud-git-discipline.md`（規則 L 拆檔模式），主檔留 1-row 速查（Why + How to apply + 三層架構圖）。**配套**：雲盤無 ignore 機制，per-machine config（workspace.json / settings.local.json）仍會撞，附 cleanup script 範本。**例外觸發條件**（必要時走多寫者）：第二人協作 / 主寫者機長期不在 / hardware failure。同步來源：Vincent5588 v1.3.30 + Windows 端踩雷實證（iCloud 對 vault `.git/` 製造 70+ 衝突檔的教訓）。|
+| **v1.4** | **2026-05-11** | **規則 O 新增：Discovery Before Action（探勘優先）**：codify LLM 在 vault 工作最深盲點「不先發現就跳動作」。**設計哲學**：規則 E（output 紀律：寫前先 show）+ 規則 M.4（claim 紀律：facts only no inference）+ 規則 O（input 紀律：執行前先探勘）= LLM 行為紀律完整三角，三條都 codify 才避免 output / claim / input 三層 drift。**三層內容**：(1) **行為層** Read 工具正確用法表——default 讀全文（不確定就讀全文 = default safe），加 limit 是錯誤的自我約束（Read 預設讀 2000 行不會 OOM）；大檔（>2000 行）先 grep H2/H3 結構再 selective Read；反模式含「對未讀過規範加 limit:80」「用 grep 取代 Read」「Read 結果 < limit 就以為讀完了」。(2) **文件層** `_` 前綴 = SSOT（Single Source of Truth）慣例 codify——`_README.md` 是「進該資料夾必讀」SSOT、`_MOC.md` 是「該主題結構索引 hub」、`_skill-staging/` 是「skill source 編輯區（不是 plugin 載入點）」；每次 ingest / 維護必讀基準清單。(3) **SOP 層** Discovery 三步——`ls` 探勘（看見 `_` 前綴立刻讀全文）→ 讀必讀檔（不加 limit，>2000 行 grep H2/H3 + selective）→ Confirm ground truth vs doc drift（不一致時 chat 報告 + 提案修哪邊，規則 E 配套）。**完整內容拆到** `wiki/rules/rule-O-discovery-before-action.md`（規則 L 拆檔模式）。**根本原則**：靠規則約束不靠 LLM 自律——LLM 自律下個 session 就忘，規則寫進 CLAUDE.md 永遠在 system prompt。本規則自身是 Compounding Engineering 飛輪的範例（同 root cause 踩 N 次 → codify → 下次 session LLM 預設讀進 system prompt）。同步來源：Vincent5588 v1.3.31。|
+| **v1.5** | **2026-05-11** | **規則 O v1.1：§O.4 Reference Discipline 新增**——v1.4 codify 規則 O 後同 root cause 又踩 2 次：(a) 描述 vault 狀態時憑印象寫「X 已實施 / Y 未跟進」沒先 ls 確認；(b) 寫 wikilink 沒 grep 確認 canonical basename，dangling link 被 Obsidian auto-create 成 0-byte 空檔。**Pattern 共通**：「reference / 描述既有檔案時憑印象，沒先 ls / grep verify」。**§O.1-O.3 講「進來時讀」（input 讀對 + 讀全 + confirm drift），§O.4 補「出去前 verify」**——引用 / 描述既有檔案 / entity / 路徑前必先 ls / grep 確認 canonical name + 實際狀態，不憑印象。**§O.4 必做 verify 表**：寫 wikilink → find；寫「X 已過時」→ ls + Read；報告 entity 數 → find + wc -l；描述資料夾結構 → ls；引用規範 → grep / Read 現況；show before write 現況 → Read 該檔當前內容。**反模式**：模糊詞「應該 / 大概 / 待確認」= 沒 verify 暗號，verify 後改「已確認 / 不存在 / mtime 為 Z」明確詞。**SOP 出去前 verify 三步**：搜尋（find / ls / grep）→ 判斷 canonical（多 candidates 選 stable + 新 mtime / 看 aliases）→ 寫用 verified canonical 形式（wikilink 用實際 basename / 狀態用 verified 事實 / 路徑用絕對）。**Compounding Engineering 飛輪驗證**：v1.4 codify → 同日又踩 2 次 → v1.5 補 §O.4 → 規則自身演進是飛輪具體實證。同步來源：Vincent5588 v1.3.32。|
+| **v1.7** | **2026-05-12** | **Phase 2 拆檔完成：Rules D-L + Heuristics 1-3 全移出 CLAUDE.md 主檔**：把 §10 inline 約 215 行的規則詳述（規則 D / E / H / I / J / K / L + 經驗法則 1 / 2）全部替換為 1-row 速查格式（核心鐵則 + `wiki/rules/` 連結 + Why + How to apply）；新增 heuristic-3-doc-rot.md 拆檔 + 1-row；規則 D 補「英文技術名詞必加繁中說明 `Term（中文）`」（先前只規定 quote 翻譯，技術名詞是例外；v1.7 反轉：技術名詞**必須**加繁中說明）；版本號 v1.6 → v1.7。同步來源：Vincent5588 v1.3.35 + v1.3.36。|
+| **v1.6** | **2026-05-11** | **🔄 v1.1 longform-as-type 決策反轉**：把 longform 從「第 9 種 type」廢除，回到 8 種 type 體系。**根本錯誤**：v1.1 codify 時把「longform 不拆 atomic 的呈現方式」當作 type field 的值，混淆了**呈現方式（atomize:false）**跟**概念性質（type 維度）**兩個正交維度。**實證踩雷**（同源 Vincent5588 v1.3.34）：把長文 entity 全塞進 `<domain>/longform/` 子目錄後，使用者開 file tree 看到 longform 跟其他 type 並列就會覺得「為什麼這算一種分類？」——因為實際上 longform entity 各自屬於 system / pattern / concept 等真正的概念類別。**正確機制**：type 永遠從 8 種既有詞彙挑（process / concept / role / artifact / pattern / system / rule / person），不論該 entity 是 atomize:true 還 atomize:false。`atomize: false` 是 frontmatter marker 標記「body 含原文 + entity wrapper」呈現方式，獨立於 type 維度。tag `longform`（選用）僅給 query / 篩選用，也不影響 type。**改動 5 處**：(a) §3.1 Step 3b/c 改寫——「type 同 atomize:true 規則從 8 種挑選依概念性質」+ 路徑 `<domain>/<type>/`（不寫到 longform/）；(b) §3.1.1 對照表加 frontmatter marker column + entity 路徑兩種都 `<domain>/<type>/`；(c) §3.1.1 路由表 entity 路徑改 `<domain>/<type>/`；(d) §4 type 表回 8 種（刪 longform row）+ 加「呈現方式 marker 獨立於 type」段；(e) §1 raw 預檢表 longform 規則改寫 + Templates/Longform Note type placeholder。**回望 + Compounding Engineering 飛輪示範**：v1.1 codify 當時想同時解「不要拆 atomic」+「但要建 entity」兩個問題，最快做法是加新 type—— 但這跳過「呈現方式 vs 概念性質正交」的清晰思考。Vincent5588 v1.3.28 → v1.3.34 同 session 飛輪：codify → 實戰 ingest 3 entity → 使用者開 Obsidian 看到結構不對 → 反轉。本反轉示範規則迭代週期：codify → 實戰 → 發現 conflate → 反轉 → 加註「為什麼這次反轉」進歷史 row 防後人重蹈。同步來源：Vincent5588 v1.3.34。|
 
 ---
 
@@ -131,20 +137,21 @@ my-wiki/
 3. 建立 entity（兩種模式）：
    - atomize: true（預設）：對每個 atomic 概念分別建一個 entity
      a. 推論 domain（reuse-first，已有的 domain 優先用）
-     b. 推論 type（標準 9 種詞彙含 longform，reuse-first）
+     b. 推論 type（標準 **8 種**詞彙，reuse-first；v1.6 反轉 v1.1：取消 longform type，atomize:false 也用 8 種挑選）
      c. 寫到 wiki/entities/<domain>/<type>/<basename>.md
-   - atomize: false：整份 raw 合成 1 個 longform entity（不拆）
+   - atomize: false：整份 raw 合成 1 個 entity（不拆）
      a. 推論 domain（同上）
-     b. type 固定為 longform
-     c. 寫到 wiki/entities/<domain>/longform/<basename>.md
-     d. body 含 entity wrapper（摘要 + 核心要點 + 關係 sections + 原文 + 待解）
+     b. **type 同 atomize:true 規則挑選**（v1.6 反轉 v1.1：longform 是呈現方式不是 type；依 entity 該屬類別挑 8 種之一）
+     c. 寫到 wiki/entities/<domain>/<type>/<basename>.md（不再寫到 longform/ 子資料夾）
+     d. frontmatter 加 `atomize: false` marker（呈現方式標記）+ tag `longform`（選用）
+     e. body 含 entity wrapper（摘要 + 核心要點 + 關係 sections + 原文 + 待解）
 3.5 raw 含圖則下載 + 本地引用（見規則 I）：兩種模式都做
    a. 識別 raw 內所有 ![alt](url) 外部圖片
    b. 下載到 Attachments/<source-basename>/<NN>-<short-desc>.<ext>
    c. entity 引用改本地
 4. 為相關既有概念加 backlink（兩種模式都做）
 5. 標記與既有 wiki 的矛盾，提醒使用者
-6. 更新 wiki/index.md（兩種模式都做——longform entity 也算新 entity）
+6. 更新 wiki/index.md（兩種模式都做——atomize:false entity 也算新 entity）
 7. 寫 wiki/daily/YYYY/MM/YYYY-MM-DD.md
 8. 依 PARA_ROUTING 提案 raw 目的地
 9. 等使用者裁決，才搬 raw 檔
@@ -152,31 +159,34 @@ my-wiki/
 11. 回報使用者：影響了哪些頁、矛盾、後續該調查的主題
 ```
 
-#### 3.1.1 Atomize 判斷（三層優先序 + Longform body 結構）
+#### 3.1.1 Atomize 判斷（三層優先序 + Longform body 結構，v1.6 反轉 longform-as-type）
 
 LLM 在 Step 0 預檢時依下列三層優先序決定該 raw 怎麼建 entity：
 
 | 優先序 | 來源 | 規則 |
 |-------|------|------|
 | 1 | frontmatter `atomize:` 明確指定 | 永遠優先（true / false 都尊重）|
-| 2 | 路徑含 `longform/` 子資料夾（如 `00-Inbox/longform/`）| 預設 `atomize: false` |
+| 2 | 路徑含 `longform/` 子資料夾（如 `00-Inbox/longform/`）| 預設 `atomize: false`（**注意**：`longform/` 僅是 inbox 路徑信號，不對應 entity 目錄）|
 | 3 | 預設 | `atomize: true`（拆 atomic）|
 
-**重要**：`atomize: false` **不是「跳過 entity 建立」**，是「**建 1 個 longform entity 不拆**」。所有 cascade（index / daily log / routing）跟標準 ingest 一樣做。
+**重要**：`atomize: false` **不是「跳過 entity 建立」**，是「**建 1 個 entity 不拆**」。所有 cascade（index / daily log / routing）跟標準 ingest 一樣做。
 
-##### atomize:true vs atomize:false 對照
+**v1.6 反轉**：v1.1 把「longform 作為第 9 種 type」是混淆「呈現方式（atomize:false）」跟「概念性質（type）」兩個正交維度的決策錯誤。回到 8 種 type：atomize:false 的 entity 仍照「該 entity 該屬什麼性質（system / pattern / concept / process / role / artifact / rule / person）」挑 type，**不論 atomize 值都用同一套 8 種詞彙**。`atomize: false` 純粹是 frontmatter marker 標記「body 含原文 + entity wrapper」呈現方式，不影響 type 維度。
 
-| 步驟 | atomize: true（預設）| atomize: false（longform）|
+##### atomize:true vs atomize:false 對照（v1.6 更新）
+
+| 步驟 | atomize: true（預設）| atomize: false（longform 呈現）|
 |------|---------------------|---------------------------|
-| Step 3 建 entity 數 | N 個（每 atomic 一個）| **1 個**（type=longform）|
-| Step 3 entity 路徑 | `wiki/entities/<domain>/<type>/` | `wiki/entities/<domain>/longform/` |
+| Step 3 建 entity 數 | N 個（每 atomic 一個）| **1 個**（type 同 atomic 規則挑 8 種之一）|
+| Step 3 entity 路徑 | `wiki/entities/<domain>/<type>/` | `wiki/entities/<domain>/<type>/`（同左，不另開 longform/）|
 | Step 3 entity body | 精煉版 | 摘要 wrapper + 原文完整保留（或連結到原文）|
+| Step 3 frontmatter marker | （無）| `atomize: false`（標記呈現方式）+ tag `longform`（選用）|
 | Step 4 backlink | ✅ | ✅ |
 | Step 6 更新 index | ✅ | ✅ |
 | Step 7 daily log | ✅ | ✅ |
 | Step 8 PARA routing raw | ✅ | ✅ |
 
-→ **唯一差別**：模式 B 只建 1 個 entity，body 保留完整長文。其他完全一樣。
+→ **唯一差別**：atomize:false 只建 1 個 entity，body 保留完整長文 + 加 marker。其他完全一樣，**包括 type 維度照 atomic 8 種規則挑選**。
 
 ##### Longform entity body 必備結構（兩種模式）
 
@@ -217,20 +227,20 @@ LLM 在 Step 0 預檢時依下列三層優先序決定該 raw 怎麼建 entity�
 <個人長文完整內容，不拆解>
 ```
 
-→ 沒有 wrapper 的 longform entity = 違反規則。lint 該偵測「longform type 但缺核心要點 / 關係 section」並標 🟡。
+→ 沒有 wrapper 的 atomize:false entity = 違反規則。lint 該偵測「`atomize: false` 但缺核心要點 / 關係 section」並標 🟡（v1.6 起 marker 從 type=longform 改為 atomize:false）。
 
-##### Longform raw 路由目的地（Step 8）
+##### Longform raw 路由目的地（Step 8，v1.6 更新 entity 路徑）
 
 | 內容性質 | raw 路由到 | entity 在 |
 |---------|----------|----------|
-| 別人寫的完整文章 | `40-Resources/<domain>/<sub>/` | `wiki/entities/<domain>/longform/<X>.md` |
-| 個人完整觀點 / 心得 | 不必另外搬（entity 本身即內容）| `wiki/entities/<domain>/longform/<X>.md` |
+| 別人寫的完整文章 | `40-Resources/<domain>/<sub>/` | `wiki/entities/<domain>/<type>/<X>.md`（type 依概念性質挑 8 種之一）|
+| 個人完整觀點 / 心得 | 不必另外搬（entity 本身即內容）| 同上 |
 | 旅遊 / 日記敘事 | `10-Notes/journal/` 或 `30-Areas/<area>/` | 同上 |
 
 ##### 用途配套
 
-- 立即可用模板：`Templates/Longform Note.md`
-- 預設 longform 資料夾：`00-Inbox/longform/`（自動觸發 atomize:false）
+- 立即可用模板：`Templates/Longform Note.md`（type 留 placeholder，v1.6 起 LLM 依內容挑 8 種之一）
+- 預設 longform 資料夾：`00-Inbox/longform/`（**僅 inbox 路徑信號** → 自動觸發 atomize:false；entity 路徑不對應）
 
 **每次 ingest 必更新的檔案清單（速查）**：
 
@@ -241,6 +251,92 @@ LLM 在 Step 0 預檢時依下列三層優先序決定該 raw 怎麼建 entity�
 | ③ | `wiki/daily/YYYY/MM/YYYY-MM-DD.md` | 當日詳細異動 | step 7 |
 | ④ | entity frontmatter `source:` | routing 完成後更新路徑 | step 10 |
 | ⑤ | `Attachments/<source>/` | 下載 raw 中所有外部圖片到本地 | step 3.5 |
+
+#### 3.1.1.1 Step 0.5：內容性質判定（v1.2 新增）
+
+**核心原則**：§3.1.1 的三層優先序判定的是「**初步預設**」，依 metadata 信號（路徑 / frontmatter）給 atomize 旗標。**但 LLM 必須在 Step 1 開始抽 entity 前再做一次「內容性質判定」**——根據 raw 實際內容判斷預設旗標合不合理，**若不合理主動提案切換並等使用者批准**。
+
+**為什麼**：metadata 信號（譬如「使用者放哪個資料夾」）不一定反映內容本質。常見錯配：
+
+- **預設 atomize:true 但內容極度連貫**：完整訪談 / 單一論點長文 / 敘事流 → 拆 atomic 會破壞論證脈絡，建議改 longform
+- **預設 atomize:false 但內容含多 atomic 概念**：使用者隨手丟進 `longform/` 但 raw 實際是技術教學含多獨立可重用概念 → 強行建 1 longform 會浪費 atomic 抽取機會
+
+**內容判定四 criteria**（LLM 讀完 raw 後自問）：
+
+| Criterion | atomic 信號（拆）| longform 信號（不拆）|
+|-----------|----------------|--------------------|
+| **獨立概念數** | ≥ 3 個可獨立成立的概念（有獨立定義 + 可獨立引用）| ≤ 2 個核心概念，其餘是支撐論證 |
+| **論證結構** | 並列式（多個對等小節）| 線性式（單一論點層層展開，拆會斷）|
+| **後續引用價值** | 多個概念都會被其他 entity 引用 | 整份作為一個整體被引用 |
+| **語境完整性** | 拆出的 atomic 各自完整可懂 | 拆出來脫離脈絡會誤導 |
+
+→ 3-4 個 criterion 偏 atomic = `atomize: true`；3-4 個 criterion 偏 longform = `atomize: false`；2-2 平衡 → 預設旗標保留，但 chat 報告時點出「邊界 case」讓使用者決定。
+
+**LLM 主動提案 SOP**（規則 E show before write 配套）：
+
+1. 讀 raw 內容（至少前 50 行 + 各章節 H2 標題）
+2. 跑 4 criterion 判定
+3. **若內容判定 ≠ 預設旗標**：在 chat 提案：
+   - ❌ 不要直接執行
+   - ✅ 寫一段「我看了內容，建議切換成 X 模式，理由：A criterion、B criterion、C criterion。要嗎？」
+   - 等使用者回 "yes" / "no" / 修改建議
+4. **若內容判定 = 預設旗標**：直接執行，但 chat 報告開頭一句話確認「內容判定 = 預設旗標 X，繼續」
+
+**範例 1：default 路徑但內容該 longform**
+
+```
+使用者：ingest 00-Inbox/某城市三天旅遊紀錄.md（atomize 預設 true）
+
+LLM 內容判定：
+- 獨立概念數：1（旅遊敘事，無多個獨立 atomic）
+- 論證結構：線性敘事
+- 引用價值：整份作為一個旅遊紀錄被引用
+- 語境完整：拆會破壞時間順序
+
+→ 4/4 偏 longform
+
+LLM 提案：
+「raw 看起來是線性敘事的旅遊紀錄，不適合拆 atomic（拆會破壞時間順序 + 語境）。
+建議搬到 00-Inbox/longform/ 走 atomize:false 建 1 個 longform entity？
+還是你想保持預設 atomize:true 強拆？」
+
+使用者：好，搬 longform
+LLM：[執行 mv + 建 longform entity]
+```
+
+**範例 2：longform 路徑但內容多 atomic**
+
+```
+使用者：ingest 00-Inbox/longform/某工具 8 個進階技巧.md（atomize 預設 false）
+
+LLM 內容判定：
+- 獨立概念數：8 個可獨立成立的技巧（每個都可單獨引用）
+- 論證結構：並列式（8 個 H2 對等小節）
+- 引用價值：每個技巧都可能被其他 entity 引用
+- 語境完整：各技巧獨立可懂
+
+→ 4/4 偏 atomic
+
+LLM 提案：
+「raw 雖然放 longform/ 子目錄，但內容是 8 個獨立技巧的並列式結構，每個都值得獨立 atomic entity 給其他 entity 引用。
+建議覆寫成 atomize:true 抽 8 個 atomic entity？
+還是你刻意要保留為 1 個 longform（譬如想保留完整脈絡 + 不希望被引用打散）？」
+
+使用者：你說的對，拆吧
+LLM：[建多個 atomic entity 而非 1 個 longform]
+```
+
+**例外（不必提案的 case）**：
+
+- frontmatter `atomize:` **明確指定**（譬如使用者已寫 `atomize: true` 或 `false`）→ 永遠 honor，不必再判定
+- 使用者**明確要求**「直接走預設」/「不要再問」→ skip 內容判定
+- 內容判定結果跟預設旗標**一致**（4/4 或 3/4 偏向預設方向）→ 直接執行，chat 報告開頭一句話確認
+
+**反模式警覺**：
+
+- ❌ 不要每次 ingest 都做冗長的 4 criterion 報告——只在**預設旗標跟內容判定衝突**時才在 chat 提案
+- ❌ 不要把內容判定當「使用者選錯資料夾」的指責——這是 LLM 對 raw 內容做的客觀分析，不是糾正使用者
+- ❌ 不要假設 longform/ 路徑下的檔一定該 longform——使用者可能隨手丟錯，內容判定是雙保險
 
 ### 3.2 Query — 查詢
 
@@ -312,21 +408,27 @@ aliases: [別名1]                  # 選填
 ---
 ```
 
-### type 詞彙說明
+### type 詞彙說明（v1.6 反轉 longform-as-type，回 8 種）
 
 | type | 意義 | 範例 |
 |------|------|------|
 | `process` | 流程 / SOP / 工作流 | 每週回顧流程、部署 SOP |
-| `concept` | 抽象概念 / 模型 / 原理 | Zettelkasten、PARA、上下文壓縮 |
+| `concept` | 抽象概念 / 模型 / 原理 / 分析比較 | Zettelkasten、PARA、上下文壓縮、兩工具對比 |
 | `role` | 角色 / 職責 | 產品經理、Scrum Master |
 | `artifact` | 具體文件 / 報表 / 範本 | 季報模板、需求規格書 |
-| `pattern` | 可重複使用的技巧 / 用法 | Chain of Thought、5-Why 分析法 |
-| `system` | 系統 / 服務 / 工具 | Obsidian、Notion、GitHub Actions |
+| `pattern` | 可重複使用的技巧 / 工程模式 | Chain of Thought、5-Why、雙階段架構 |
+| `system` | 系統 / 服務 / 工具 / 具體 feature | Obsidian、Notion、GitHub Actions、某產品的某 feature |
 | `rule` | 規則 / 政策 / 約束 | 程式碼規範、命名慣例 |
 | `person` | 真實人物 | Andrej Karpathy |
-| `longform` | 長文 entity（不拆 atomic，body 保留完整內容 + entity wrapper）| 旅遊心得長文、書評、完整外部文章 |
 
-**注意**：`longform` type 的 entity **必須**含 entity wrapper（摘要 + 核心要點 + 關係 section + 原文 + 待解）——詳見 §3.1.1。
+**v1.1 暫加的第 9 種 `longform` v1.6 廢除**——longform 是呈現方式（用 `atomize: false` marker）不是概念性質。
+
+**呈現方式 marker（v1.6 起獨立於 type）**：
+
+- `atomize: false` frontmatter：標記「body 保留完整原文 + entity wrapper」呈現方式
+- tag `longform`（選用）：給 query / 篩選用
+
+呈現方式 marker 不影響 type 維度——entity 仍按概念性質挑 8 種之一。**body 必含 wrapper**（摘要 + 核心要點 + 關係 section + 原文 + 待解）——詳見 §3.1.1。
 
 ### status 詞彙精確化說明
 
@@ -499,158 +601,59 @@ WHERE status = "draft"
 
 > ⚠️ **使用者可依個人喜好修改此節**。上方為預設值。
 
-### 規則 D：英文 quote 必加繁中翻譯
+### 規則 D：英文 quote 必加繁中翻譯（v1.3.6）
 
-引用任何英文原文 quote 時，**必須**在原文 quote 下方緊接著一條繁中翻譯：
+> 引用英文 quote 必須緊接繁中翻譯；英文技術名詞必加繁中說明 `Term（中文）`。詳細：`wiki/rules/rule-D-quote-translation.md`。
 
-```markdown
-> "Original English text from the source."
->
-> 繁中：「翻譯。」
-```
+**Why**：繁中 vault 英文 quote 不翻破壞閱讀流暢度；技術名詞不加對照破壞可搜尋性。**How to apply**：每次 quote 必翻；技術名詞首次出現必加說明；code block / 純標題除外。
 
-**規則細節**：
-1. 兩條 quote 用空白 `>` 分隔
-2. 翻譯前綴用「**繁中：**」三字 + 全形冒號
-3. 翻譯本身用「**「」**」全形雙引號包起來
-4. 短句（< 10 詞）也要翻
-5. 專有名詞 / 技術名詞（RAG / token / API 等）不必翻
-6. 若原文有**粗體**強調，翻譯也要對應加粗
+### 規則 E：寫檔前先提案（show before write）（v1.3.6）
 
-**不適用情境**：純技術名詞引用、code block 內的英文、標題書名
+> 任何寫入動作（新建檔、大改 entity、移動、frontmatter 異動、批次操作）**必須先 show → 使用者確認 → 才動手**。詳細：`wiki/rules/rule-E-show-before-write.md`。
 
-### 規則 E：寫檔前先提案（show before write）
+**Why**：AI 寫錯後的修復成本遠高於提案確認成本。**How to apply**：使用者說「直接改」後 ≤30 分鐘內可省略；新建檔 / 改 CLAUDE.md 永遠要提案。
 
-> **對檔案系統的任何寫入動作必須先在對話中讓使用者看 → 確認 → 才動手。**
+### 經驗法則 1：同源 ingest 整批一起審（v1.3.6）
 
-**必須先提案的動作**：
-- 建立新 entity / map / daily / log（**新檔**）
-- 大規模改 entity 內容（重寫一個 entity 主體）
-- 移動 / 改名檔案
-- 改 frontmatter 結構（type、domain、status 等）
-- 批次操作（wiki-repair 一次改 N 個檔）
-- 寫 plugin / skill / 工具腳本
+> 同一份 raw ingest 出 N 個 entity，其中一個升 stable → **其他 N-1 個應一次性整批審查升 stable**。詳細：`wiki/rules/heuristic-1-batch-ingest.md`。
 
-**不需要先提案的動作**：
-- 純讀取（Read / Glob / Grep）
-- bash 查詢類（ls / find / wc -l）
-- 跑 wiki-lint / wiki-query 等唯讀 skill
+**Why**：同源 entity 可信度一致，沒理由分散處理。**How to apply**：跑 wiki-status-promote 時看到 stable entity → 推薦同 source 的 draft 整批進候選清單。
 
-**提案格式**：
-```
-我要做：[動作描述]
-影響檔案：[路徑列表]
-變動內容（節錄）：...
+### 經驗法則 2：同主題第 2 篇 raw → 補 source 而非建新 entity（v1.3.7）
 
-確認後執行？
-```
+> 新 raw 跟既有 entity ≥ 70% 重疊 → **補 `source:` + bump `updated`，不建新 entity**。詳細：`wiki/rules/heuristic-2-second-source.md`。
 
-**例外條款**：
-- 使用者明確說「直接改」「不要再問」→ 後續 ≤30 分鐘內可省略提案
-- 使用者批准了多步驟計畫 → 步驟內的每個動作不必再個別提案
-- 但**新建檔案 / 改 CLAUDE.md** 永遠要提案
+**Why**：多 source = 可信度加乘；新建 v2 = wiki-link 分裂 + 違反 reuse-first。**How to apply**：ingest 前先跑 wiki-query；< 70% 重疊或有新 atomic 才建新 entity。
 
-### 規則 H：stable artifact 改動必加版本歷程
+### 規則 H：stable artifact 改動必加版本歷程（v1.3.8）
 
-任何 `status: stable` 的 artifact，每次有意義改動（≥3 行內容變動或新增章節）必須在檔案內維護 `## 0. 版本歷程` table：
+> `status: stable` 的 artifact 每次有意義改動（≥ 3 行 / 新增章節）必須在檔案內維護 `## 0. 版本歷程` table。詳細：`wiki/rules/rule-H-version-history.md`。
 
-```markdown
-## 0. 版本歷程
+**Why**：`updated:` 只有日期，版本表才能回答「這次改了什麼」。**How to apply**：draft / 短頁免加；artifact / 長 doc / 多次迭代的 stable entity 必加；不確定就加。
 
-| 版本 | 日期 | 主要變動 |
-|------|------|---------|
-| v1.0 | YYYY-MM-DD | 初版建立 |
-| v1.1 | YYYY-MM-DD | 主要變動描述 |
-```
+### 規則 I：raw 含圖必下載到 Attachments + entity 本地引用（v1.3.11）
 
-**例外**：draft / 短頁（< 50 行）不必加。
+> raw 含 `![alt](https://...)` 外部圖片 → **必下載到 `Attachments/<source>/<NN>-<desc>.<ext>` + entity 改用本地引用**。詳細：`wiki/rules/rule-I-image-localization.md`。
 
-### 規則 I：raw 含圖必下載到 Attachments + entity 本地引用
+**Why**：外部 CDN 連結會壞 + vault 不自包含。**How to apply**：Claude Code session 直接 curl；web-restricted session 產 download script 給使用者執行。
 
-當 raw 檔含外部圖片（`![alt](https://...)`）時，**必須下載到本地 + entity 改用本地引用**：
+### 規則 J：entity 必繁中 + 翻譯責任前移到產出階段（v1.3.22）
 
-1. 下載到 `Attachments/<source-basename>/<NN>-<short-desc>.<ext>`
-2. entity 引用改：`![alt](Attachments/<source>/<NN>-<file>.jpg)`
+> wiki entity / map / index 全部繁體中文（J.1）；英文專有名詞加中英對照 `Term（中文）`（J.2）；英文 quote 加繁中翻譯（J.3）。詳細：`wiki/rules/rule-J-translation-policy.md`。
 
-**例外**：純裝飾圖、版權敏感的圖可省略
+**Why**：逐字翻譯成本高；NotebookLM 繁中摘要品質夠 + token 少。**How to apply**：英文 YT / 網頁 → NotebookLM 產繁中報告 → 從報告抽 entity；簡中 → ingest 時順手簡轉繁。
 
-### 規則 J：entity 必繁中 + 翻譯責任前移到產出階段
+### 規則 K：raw 預檢 SOP（v1.3.22）
 
-**核心原則**：vault 內全部 wiki entity / map / index 都用**繁體中文**。但翻譯責任前移到 raw 產出階段，不在 ingest 階段做逐字翻譯。
+> ingest 前 **Step 0 必偵測 raw 性質**並依類型路由（YT URL / 英文文章 / 繁中完整 / Web Clipper clip）。詳細：`wiki/rules/rule-K-raw-precheck.md`。
 
-**三條子規則**：
+**Why**：不能假設 raw 已是可 ingest 狀態。**How to apply**：讀 raw 前 100 行 → 對照分流表 → 提案（規則 E）→ 等批准。
 
-**J.1 — entity 必須全文繁中**：
-- entity 標題、frontmatter title、章節標題、列點、表格——全部繁中
-- 例外：純命令（bash）、程式碼片段、約定俗成不譯廠商名
+### 規則 L：未來新規則 / 經驗法則直接拆檔（v1.3.23）
 
-**J.2 — 英文專有名詞中英對照**（首次出現時）：
-- ✅ `Retrieval-Augmented Generation（檢索增強生成，RAG）`
-- ❌ 純英文不譯 / ❌ 純中譯不附原文
+> 新規則 > 30 行 / 跨多 sub-section / 含長 case study → **直接寫 `wiki/rules/rule-X.md`，主檔只留 1-row 速查 + 連結**。詳細：`wiki/rules/rule-L-self.md`。
 
-**J.3 — 英文 quote 加繁中翻譯**（強化規則 D）
-
-**Raw 各語言的處置**：
-
-| Raw 語言 | 處置 |
-|---------|------|
-| **繁體中文** | 直接 ingest 抽 entity |
-| **英文（YT 影片）** | 走 youtube-to-notebooklm skill → NotebookLM 產繁中摘要報告 → 從報告抽 entity |
-| **英文（網頁文章）** | 丟 NotebookLM 產繁中摘要，或直接 50-Archive |
-| **簡體中文** | ingest 時順手簡轉繁 + 詞彙台灣化 |
-
-### 規則 K：raw 預檢 SOP
-
-**核心原則**：wiki-ingest 步驟 0 必須先偵測 raw 性質，依類型路由到對應前處理，不要假設 raw「已經是可 ingest 狀態」。
-
-**Step 0 預檢分流表**：
-
-| Raw 內容 | 偵測規則 | 自動提案 |
-|---------|---------|---------|
-| **frontmatter `atomize: false`** 或 **路徑含 `longform/`** | longform / 不想拆解 | **建 1 個 longform entity**（type=longform，body 含摘要 + 關係 + 原文 wrapper），不拆成 N 個 atomic。其他 cascade（index / daily / routing）全做。詳見 §3.1.1 |
-| **frontmatter `pending_action: youtube-skill`** | YouTube 影片 clip | 直接 chain youtube-to-notebooklm |
-| **裸 YT URL**（檔長 < 300 bytes + YT URL） | URL-only 偵測 | 「先跑 youtube-to-notebooklm skill 產繁中報告？」|
-| **大量英文文章**（≥ 30% 英文 + 檔長 > 5 KB） | 語言比例 | 「丟 NotebookLM 產繁中摘要 → 從摘要 ingest？或直接 50-Archive？」|
-| **簡中文章**（含「数据 / 软件 / 这个」等） | 字元偵測 | 「ingest 時順手簡轉繁 + 詞彙台灣化」|
-| **繁中 + 結構完整** | 預設 | **直接 ingest**（標準流程）|
-| **空檔 / 只有 frontmatter**（body < 50 bytes） | 檔長偵測 | 「raw 內容不足，無法 ingest。要刪嗎？」|
-
-**LLM 收到 ingest 指令時的決策樹**：
-```
-使用者：「ingest 00-Inbox/X.md」
-  ↓
-LLM 讀檔前 100 行（step 0 預檢）
-  ↓
-提案處理路線（規則 E）
-  ↓
-使用者批准：
-  ├─ 「OK」→ 走標準 wiki-ingest 流程
-  ├─ 「先跑 X skill」→ chain 對應 skill → 等產出後再 ingest
-  └─ 「Archive」→ 移到 50-Archive，不 ingest
-```
-
-### 規則 L：未來新規則直接拆檔
-
-**核心原則**：CLAUDE.md 主檔有上限。新規則符合以下任一條件 → 直接寫 `wiki/rules/rule-X.md`，主檔只留 1 row 速查：
-
-- 內容超過 30 行
-- 跨多個 sub-section
-- 含長 case study
-- 預期會持續擴充
-
-**拆檔的 frontmatter 規格**：
-```yaml
----
-title: "規則 X：xxx"
-tags: ["claude-md-rule"]
-domain: wiki
-type: rule
-status: stable
-parent: "[[CLAUDE]] §10"
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
----
-```
+**Why**：CLAUDE.md 主檔有上限；progressive disclosure 讓 LLM 開 session 快速掌握，細節 fetch 即可。**How to apply**：規則 A / B / C + Quick Reference 永遠 inline；其餘 > 30 行的全拆出。
 
 ### 規則 M：執行心法
 
@@ -664,18 +667,51 @@ updated: YYYY-MM-DD
 
 **How to apply**：寫檔前自問 M.1+M.2、寫完後 M.3 self-review、寫進 doc 的內容過 M.4。
 
+### 規則 N：雲盤 + git 紀律（single-writer policy）
+
+> 詳細：`wiki/rules/rule-N-cloud-git-discipline.md`
+
+**核心鐵則**：vault 用雲盤跨機同步編輯 OK，但 **git operations 只在一台機器** 的「**雲盤外**」位置進行。多寫者必爆雲盤 conflict（雲盤對 `.git/index` / `refs/heads/main` / objects 製造多版本衝突），單寫者紀律是唯一可靠解。
+
+**三層架構**：
+
+```
+[雲盤 vault]（純檔案，跨機 sync）
+   ↓ sync 腳本（rsync / robocopy）
+[雲盤外 git working tree]（單寫者，~/git-mirrors/ 或 D:\vault-git\ 等）
+   ↓ git push / pull
+[GitHub]
+```
+
+**How to apply**：vault 編輯任何機器 OK（雲盤自動 sync）→ git push 只到「主寫者機」的「雲盤外」git working tree → 其他機器**不該有** `.git/` working tree。多寫者觸發條件（必要 case）：第二人協作 / 主寫者機長期不在 / hardware failure，否則一律單寫者。
+
+**配套**：雲盤無 ignore 機制，per-machine config（workspace.json / settings.local.json 等）仍會撞 → 偶爾跑 cleanup script（範本見拆檔），保留主版刪 `* N.json` 衝突累積。
+
+### 規則 O：Discovery Before Action（探勘優先）
+
+> 詳細：`wiki/rules/rule-O-discovery-before-action.md`
+
+**核心鐵則**：執行任何 ingest / cascade update / 規範改動前**必先**跑 Discovery 三步（ls → 讀必讀檔 → confirm ground truth vs doc drift），不能憑「自以為了解」直接動作。違反就是 drift 來源。
+
+**Why**：LLM 在 vault 工作最深盲點是「不先發現就跳動作」。**規則 E（output 紀律：寫前先 show）+ 規則 M.4（claim 紀律：facts only no inference）+ 規則 O（input 紀律：執行前先探勘）= LLM 行為紀律完整三角**。三條都 codify 才能避免「output / claim / input」三層 drift。**根本原則**：靠規則約束不靠 LLM 自律——LLM 自律下個 session 就忘，規則寫進 CLAUDE.md 永遠在 system prompt。
+
+**How to apply**：
+
+(1) **行為層 Read 工具用法**：default 讀全文（不確定就讀全文 = default safe）；Read 工具預設讀 2000 行，加 limit 是錯誤的自我約束；大檔（>2000 行）先 grep H2/H3 結構再 selective。反模式：對未讀過規範加 `limit:80` / 用 grep 取代 Read。
+
+(2) **文件層 `_` 前綴 = SSOT 慣例**：`_README.md` = 進該資料夾必讀 SSOT、`_MOC.md` = 該主題結構索引 hub、`_skill-staging/` = skill source 編輯區（不是 plugin 載入點）。看見 `_` 前綴 = 立刻讀全文。每次 ingest 必讀基準清單：`CLAUDE.md` + `Wiki_維護觸發規則.md` + 對應 `rule-X.md` + domain `_MOC.md` + 目標 `_README.md`。
+
+(3) **SOP 層 Discovery 三步**：ls 探勘（看見 `_` 立刻讀）→ 讀必讀檔（不加 limit）→ confirm ground truth vs doc drift（不一致時 chat 報告 + 提案修哪邊，規則 E 配套）。
+
+(4) **Reference Discipline（v1.1 新增）**：引用 / 描述既有檔案 / entity / 路徑前**必先 ls / grep verify** canonical name + 實際狀態，不憑印象寫 `[[basename]]` 或「X 未實施」之類描述。常見錯配：wikilink basename 大小寫 / spacing 寫錯造成 dangling link 被 Obsidian auto-create 空檔；模糊詞「應該 / 大概 / 待確認」= 沒 verify 的暗號，verify 後改用「已確認 / 不存在 / mtime 為 Z」明確詞。
+
 ---
 
-### 經驗法則 1：同源 ingest 整批一起審
+### 經驗法則 3：「文件即真理」失效要回查 source（v1.3.8）
 
-當一份 raw 文件 ingest 出 N 個 entity，其中**一個 entity 升 stable**，**其他 N-1 個應一次性審查整批升 stable**——它們的可信度根源於同一個業務確認過的 source。
+> 文件寫對但行為錯 ≥ 2 次 → **一定是 doc-vs-code drift**，直接讀 build output / 鎖定版本 source / 實際 config，不再 debug 行為。詳細：`wiki/rules/heuristic-3-doc-rot.md`。
 
-### 經驗法則 2：同主題第 2 篇 raw → 補 source 而非建新 entity
-
-當不同 raw 描述**同一個主題、同一個概念**，且既有 entity 已存在時：
-
-✅ **正確**：把新 raw 路徑加進既有 entity 的 `source:` 列表，bump `updated`
-❌ **錯誤**：建一個「概念 v2」之類的新 entity（重複 = 違反 reuse-first）
+**Why**：文件腐化是必然；quiet failure（exit 0 但實際壞掉）是最隱蔽的 drift 信號。**How to apply**：重要 config 段落加 `# NOTE:` 指向文件章節；定期 diff actual config vs doc。
 
 ---
 
