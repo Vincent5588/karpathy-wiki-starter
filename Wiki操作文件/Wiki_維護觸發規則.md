@@ -5,7 +5,7 @@ domain: wiki
 status: stable
 tags: [wiki, sop, propagation, maintenance, rules]
 created: 2026-01-01
-updated: 2026-01-01
+updated: 2026-05-11
 aliases: [Propagation Matrix, Wiki cascade rules, 連動更新規則]
 cssclasses: [wide]
 ---
@@ -37,20 +37,21 @@ cssclasses: [wide]
 
 ## 1. Ingest 1+ entity（最高頻動作）
 
-> **atomize:false 例外（v1.1 重寫）**：raw 為 `atomize: false`（frontmatter 明確指定 / 路徑含 `longform/`）時，**改建 1 個 longform entity**（type=longform，body 含 wrapper 結構），**不**跳過 cascade。entity 數從 N 變 1，但所有更新照常做。詳見 [[CLAUDE]] §3.1.1。
+> **atomize:false 例外（v1.1 重寫 + v1.6 反轉 longform-as-type）**：raw 為 `atomize: false`（frontmatter 明確指定 / 路徑含 `longform/`，僅 inbox 路徑信號不對應 entity 目錄）時，**改建 1 個 entity 不拆**（**type 從 8 種挑選依概念性質**，body 含 wrapper 結構，frontmatter 加 `atomize: false` marker），**不**跳過 cascade。entity 數從 N 變 1，但所有更新照常做。詳見 [[CLAUDE]] §3.1.1。
 
 ### 🔴 強制更新
 
 | 檔案 | 改什麼 | atomize:false 時 |
 |------|------|----------------|
-| `wiki/entities/<domain>/<type>/<X>.md` | 新建 entity 本體 | ✅ **仍做**，但 1 個（type=`longform`，路徑 `wiki/entities/<domain>/longform/`）|
-| `wiki/maps/<X>.md`（若衍生 map）| 新建跨主題地圖 | ⚠️ 視主題判斷（longform 通常不衍生 map）|
+| **Step 0.5 內容性質判定**（v1.2 新增）| LLM 讀 raw → 跑 4 criterion（獨立概念數 / 論證結構 / 引用價值 / 語境完整）→ 若內容判定 ≠ 預設旗標（metadata 信號）就主動 chat 提案切換 longform ↔ atomic 並等批准 | ✅ **必做**（雙向判定：default 路徑但內容該 longform → 提案搬 longform/；longform 路徑但內容多 atomic → 提案改 atomize:true）|
+| `wiki/entities/<domain>/<type>/<X>.md` | 新建 entity 本體 | ✅ **仍做**，但 1 個（v1.6：type 從 8 種挑選依概念性質，**不**寫 longform/；frontmatter 加 `atomize: false` marker）|
+| `wiki/maps/<X>.md`（若衍生 map）| 新建跨主題地圖 | ⚠️ 視主題判斷（atomize:false 通常不衍生 map）|
 | `wiki/daily/YYYY/MM/YYYY-MM-DD.md` | 加 phase / 一行摘要 / 詳細小節 | ✅ 仍做 |
 | `wiki/index.md` header「最後更新」| 改今天日期 + 一句話描述 | ✅ 仍做 |
 | `wiki/index.md` header「entity 計數」| bump 數字 | ✅ 仍做（+1）|
 | `wiki/index.md` domain section | bump 該 domain 條目 | ✅ 仍做（+1）|
 | PARA routing | 提案目的地 + 搬檔 | ✅ **仍做**（外部文章 raw → 40-Resources；個人 longform 不必搬）|
-| longform entity body wrapper | LLM 加：摘要 + 核心要點 + 強連結/推斷連結/深入閱讀 + 原文 + 待解 | ✅ **必做**（缺 wrapper = lint 標 🟡）|
+| atomize:false entity body wrapper | LLM 加：摘要 + 核心要點 + 強連結/推斷連結/深入閱讀 + 原文 + 待解 | ✅ **必做**（缺 wrapper = lint 標 🟡。v1.6：marker 從 type=longform 改為 frontmatter `atomize: false`）|
 
 ### 🟡 建議更新（當天 batch 一次）
 
