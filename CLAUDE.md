@@ -4,7 +4,7 @@
 > 規範你在維護本 vault 時要遵守的結構、慣例、工作流程。
 > 模式來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 > Plugin release：**karpathy-wiki-pattern v1.4.3**（含 8 skills）
-> Vault patch：**v1.7**（Phase 2 拆檔：Rules D-L + Heuristics 1-3 全移出主檔；規則 D 補技術名詞加繁中說明）
+> Vault patch：**v1.9**（規則 Q/R/S/T + 經驗法則 4-8 移入；§6 Wikilink 語法、§13 工具鐵則 2-4）
 
 ---
 
@@ -16,11 +16,15 @@
 
 > TODO 三層分工：`wiki/PROGRESS.md`（開 session 必讀，top 5）→ `wiki/TODO.md`（完整積壓清單）→ `memory/project_*.md`（跨 session project 上下文 Why/背景）
 
+> 🚨 **任何 vault 寫入前必跑規則 P**（v1.8）：在 chat 引用 [[Wiki_維護觸發規則]] §N 的 cascade 清單，無法引用 = 沒讀過觸發規則 = 必停下來讀。詳見 [[rule-P-cascade-citation|規則 P]]。
+
 ---
 
 ## 0. 版本歷程
 
-> **v1.7**（2026-05-12）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
+> **v1.9**（2026-08-13）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
+> v1.9 新增規則 Q（PARA project MOC cascade）/ R（索引層 `updated` bump）/ S（事實時效三態）/ T（完成宣告逐項證據）+ 經驗法則 4-8；§6 補 Wikilink 語法紀律、§13 補工具鐵則 2-4（路徑引用、跨平台編碼、整檔重寫）。
+> v1.8 新增規則 P（Cite-or-Die Cascade Citation）— 把「必讀觸發規則」從被動文字升格為 chat-verifiable 紀律。
 
 ---
 
@@ -508,11 +512,56 @@ status: deprecated → 不該引用；使用者特別要求才引用，並標明
 - **reuse-first**：已有的 domain 優先用，別發明同義詞
 - type 用標準 8 種；新 type 慎開
 
+### `_MOC` 檔名
+
+- **檔名必帶分類**：`_<分類>_MOC.md`
+  - ✅ `_GitHub_MOC.md`、`_Learning_MOC.md`
+  - ❌ 純 `_MOC.md`——多個同名 basename 會讓 wikilink 歧義、Dataview 清單分不清誰是誰
+- frontmatter 必填 `title:`（顯示名依賴它）+ `updated:`（規則 R）
+
 ### 衝突檢查
 
 寫 entity 之前，檢查：
 1. 同 basename 是否已存在於別的 `<domain>/<type>/` → 通知使用者
 2. 接近的同義詞是否已存在 → 考慮合併或加區分詞
+
+### Wikilink 語法
+
+Obsidian wiki-link 的設計初衷是 **basename 解析**（不論檔在哪個資料夾，basename 唯一就連得到）。寫 wikilink 的紀律：
+
+- ✅ `[[X]]` — 純 basename，Obsidian 自動跨資料夾解析（**首選**）
+- ✅ `[[X|別名]]` / `[[X#章節]]` / `[[X#章節|別名]]` — basename + 客製顯示
+- ❌ `[[../tools/X]]` — 相對路徑容易壞（vault 重組就 dangling），且破壞 basename 解析
+- ❌ `[[wiki/entities/<domain>/<type>/X]]` — 帶完整路徑等效於 `[[X]]`，但多餘且重構後易壞
+- ❌ `[[script.py]]` / `[[run.sh]]` — 非 `.md` 檔的 wikilink 不 resolve，**改用 inline code** `` `wiki/tools/script.py` ``
+- ❌ `[[報告.pdf]]` / `[[dashboard.html]]` — **附件類（PDF / HTML / 圖檔）在 entity 內文一律 inline code**，理由見下
+
+#### 附件類專條（PDF / HTML / 圖檔）
+
+⚠️ **這類跟 `.py` / `.sh` 不同，不要套用上面那條的理由**：Obsidian **確實會**用 basename 解析到 `.pdf` / `.html` 附件（點得開）。所以「不 resolve」在這裡是**錯的理由**——正因為理由不成立，這條規則才會一再被繞過（LLM 驗證後判定不適用）。
+
+**正確理由（兩條，與 resolve 無關）**：
+
+1. **lint 會誤報**：`lint.py` 只掃 `wiki/entities/` + `wiki/maps/` 的內文 wikilink，附件不在掃描範圍 → 每個 `[[附件]]` 都變成一筆 missing link，把真正的壞連結訊號洗掉。
+2. **真理層分離**：HTML / PDF 是**呈現層或原始素材**，不是 entity 的知識來源本體。
+
+**寫法**：
+
+| 位置 | 寫法 |
+|---|---|
+| entity **內文** | `` `40-Resources/<主題>/報告.html` `` inline code |
+| entity **frontmatter `source:`** | 純字串路徑（lint 不掃 frontmatter，安全）|
+| **要可點** | **不在 entity 內解決**——交給該資料夾登錄表（`_MOC` / README）的 markdown 相對連結 `[path](path)`，entity 只指向該登錄表 |
+
+💡 **心法**：entity 內文追求 **lint 乾淨**，可點需求交給登錄表。兩者分工，不要在 entity 裡兼顧。
+
+**判斷流程**：
+
+1. 目標是 `.md` → `[[basename]]`
+2. 目標是 `.py` / `.sh` / `.json` → inline code
+3. 目標是 `.pdf` / `.html` / 圖檔 → 內文 inline code；可點交給登錄表
+4. 目標是 vault 外部 URL → markdown link `[text](url)`
+5. 同 basename 出現在多個 domain → Obsidian 走最短路徑解析，必要時加區分詞 `[[X (work)|X]]`
 
 ---
 
@@ -697,6 +746,40 @@ WHERE status = "draft"
 
 (4) **Reference Discipline（v1.1 新增）**：引用 / 描述既有檔案 / entity / 路徑前**必先 ls / grep verify** canonical name + 實際狀態，不憑印象寫 `[[basename]]` 或「X 未實施」之類描述。常見錯配：wikilink basename 大小寫 / spacing 寫錯造成 dangling link 被 Obsidian auto-create 空檔；模糊詞「應該 / 大概 / 待確認」= 沒 verify 的暗號，verify 後改用「已確認 / 不存在 / mtime 為 Z」明確詞。
 
+### 規則 P：Cascade 前必引用觸發規則 §N（Cite-or-Die）
+
+> 詳細：`wiki/rules/rule-P-cascade-citation.md`
+
+**核心鐵則**：任何 vault 寫入動作前 LLM **必須**在 chat 引用 [[Wiki_維護觸發規則]] §N 的具體 cascade 清單。無法引用 = 沒讀 = 必須停下來讀。
+
+**Why**：歷史上 LLM 反覆踩同一個雷——知道要做 X，但漏 cascade。CLAUDE.md 寫「必讀觸發規則」是被動文字、無法 enforce。把「我可能跳過」變成 **chat 中明顯 caller-verifiable 的動作**：要嘛我有引用 §N + cascade 清單，要嘛我沒有（= 證明沒讀）。**規則三角閉環**：規則 E（output 紀律：寫前先 show）+ 規則 O（input 紀律：執行前先探勘）+ **規則 P（process 紀律：cascade plan 寫出來給 caller 看）= 完整 input / output / process 三層 verifiable 紀律**。
+
+**How to apply**：寫入前必輸出 `依 [[Wiki_維護觸發規則]] §N，本次「<動作>」將 cascade：① ... ② ... → 自我檢查：<bash>`。使用者隨時可喊「規則 P check」要求 LLM 列當前已 cascade vs 應 cascade diff。配套：wiki-ingest skill staging Step 0（plugin v1.4.5+） + lint.py cascade 完整性檢查（v1.3.9+）。
+
+### 規則 Q：PARA Project 維護規範（MOC SSOT + 異動 Cascade）
+
+> 每個 `20-Projects/<name>/` 子目錄**必有** `_<name>_MOC.md` 作為該 project SSOT；子目錄內任何檔案異動（新建 / 修改 / 刪除 / 改名）都要回頭更新 `_MOC` + 同步上游索引。詳細：`wiki/rules/rule-Q-para-moc.md`。
+
+**Why**：project 子目錄常累積 5-30 個檔案，沒 SSOT 入口會散亂；`_MOC` + 異動 cascade ＝「打開 `_MOC` 30 秒掌握全貌」。**How to apply**：動檔前先讀 `_MOC`（規則 O）→ show before write（規則 E）→ 動完同步 `_MOC` + 上游索引 + bump `updated` → chat cite cascade（規則 P）。🔴 **鎖定 / 登記單位是「專案」不是「檔」**——只鎖你打算改的檔，`_MOC` 就落在「一定會寫、但鎖沒涵蓋」的縫裡。
+
+### 規則 R：_MOC / README updated bump 紀律
+
+> 內含同層索引的 `_MOC.md` / `README.md`，該層任何 `.md` 檔異動後**必須** bump frontmatter `updated:` 為當日。詳細：`wiki/rules/rule-R-moc-readme-updated.md`。
+
+**Why**：`updated:` 是「該層最新異動時間」，沒有它就無法判斷索引新不新鮮。**How to apply**：動完該層檔 → 打開 `_MOC` / 含索引 README → 改 `updated:` 為當日（無此欄位就新增）→ cite cascade。**不適用**：純導覽 stub 型 README、`20-Projects` 的 `_MOC`（已被規則 Q 覆蓋）、純筆誤。
+
+### 規則 S：事實時效三態（timeless / snapshot / pointer）
+
+> 每條事實必須是三種合法形式之一：**timeless**（不會過期）/ **snapshot**（帶日期觀測，永不過期）/ **pointer**（存指標不存值）。**對揮發性事實的無日期現在式宣稱是唯一非法形式。** 詳細：`wiki/rules/rule-S-fact-freshness.md`。
+
+**Why**：`status` / `review_by` / 規則 H **全在檔案層**，管「這份檔可不可信」；沒有任何機制管**句子層**——`status: stable` 的 entity 裡可以躺著無日期的過期事實，而 LLM 仍照 §4 放心引用。**How to apply**：碰到數字 + 「目前 / 現在」先判快慢事實——慢的存值、快的加 `（as of YYYY-MM）` 或改存 pointer；價格 / 行情類 entity 切「長效結構 + 數據快照（標查證日）」兩層。只檢查 `status: stable`，daily / report 類豁免。
+
+### 規則 T：完成宣告必附逐項證據（Verification Ledger）
+
+> 宣告「完成／通過／verified／健康／全綠」任何東西 → **必附判準逐項對照，不得只顯示結論或單一狀態**。任一項未滿足，`Overall` 不得標完成。詳細：`wiki/rules/rule-T-verification-ledger.md`。
+
+**Why**：其他品質機制防的是「有沒有做驗證」；規則 T 防的是**定了判準、宣告符合、但沒逐條對**——「看起來在檢查、其實沒檢查」。**How to apply**：完成宣告旁固定攤開判準逐項（`Tests | Review | CI | 人工確認 | Main`）；「已 merge／exit 0／燈號綠」是單一門檻，不能反推整體。**心法**：控制點有沒有效，看它**能不能真的產生信號**，不是流程圖上有沒有那個方框。
+
 ---
 
 ### 經驗法則 3：「文件即真理」失效要回查 source（v1.3.8）
@@ -704,6 +787,36 @@ WHERE status = "draft"
 > 文件寫對但行為錯 ≥ 2 次 → **一定是 doc-vs-code drift**，直接讀 build output / 鎖定版本 source / 實際 config，不再 debug 行為。詳細：`wiki/rules/heuristic-3-doc-rot.md`。
 
 **Why**：文件腐化是必然；quiet failure（exit 0 但實際壞掉）是最隱蔽的 drift 信號。**How to apply**：重要 config 段落加 `# NOTE:` 指向文件章節；定期 diff actual config vs doc。
+
+### 經驗法則 4：YT 報告 fast-path（yt-dlp + 本地 Whisper）
+
+> **單支影片要中文報告 → 優先 yt-dlp 抓內容 + 直接產報告，跳過雲端輪詢**（2-4 分 vs 5-15 分）。有字幕抓字幕、無字幕用本地 Whisper 轉錄；多支跨來源綜合才走雲端服務。詳細：`wiki/rules/heuristic-4-yt-fastpath.md`。
+
+**Why**：雲端來回慢；單支影片本地路徑快 + 中文直出 + 純本地。**How to apply**：報告仍照 `youtube-to-notebooklm` 的字數階梯與段落結構 + 規則 D/J；本地轉錄**無人工校對**，專有名詞尾部加誤差警告，**ingest 前照經驗法則 7 校正**。
+
+### 經驗法則 5：promote 判斷精煉（待解分型 + owner 共審）
+
+> `## 待解` 分兩型——「未來 / 取決於」型**不擋 stable**，只有「矛盾 / 存疑」型才強制留 draft；且**同 session owner 逐輪共審過的 entity 可直接升 stable**（不必等 30 天）。詳細：`wiki/rules/heuristic-5-promote-refinement.md`。
+
+**Why**：把「含 `## 待解`」一律歸 🟡 太粗——多數待解是「未來展開」不是「內容存疑」；且 **age 不等於 trust**。**How to apply**：讀待解內容判型；owner 本 session 審過即算人審；仍照規則 E 由 owner 拍板。
+
+### 經驗法則 6：廠商內容 ingest → 立場標註（骨架 vs 工具置入）
+
+> ingest 廠商 / 第一方 thought-leadership 時，抽 entity 必標立場，區分「**方法論骨架（普適）**」vs「**工具置入（廠商 specific）**」。錨點載一次即可。詳細：`wiki/rules/heuristic-6-vendor-content-stance.md`。
+
+**Why**：vendor content 的方法論常有真價值，但夾帶產品導流；不標立場，未來引用會把「某產品特定用法」誤當普適原則。**How to apply**：錨點 `## 待解` 加一句立場標註；骨架用中性語言、工具置入處明確點名廠商；此類 caveat **不擋 stable**（法則 5 的立場型）。
+
+### 經驗法則 7：AI 轉錄二手素材必逐項查證
+
+> 凡 **AI 轉錄**產出的素材（語音辨識稿 / YT・Podcast AI 摘要 / AI 會議紀錄）→ ingest 前**專有名詞與數字一律獨立查證**，並主動偵測 **AI 生成的虛構結構**（行動項目 / 決策 / 負責人 / 日期）。詳細：`wiki/rules/heuristic-7-transcript-verification.md`。
+
+**Why**：這類素材**讀起來完全正常**——敘述流暢、結構完整，**沒有任何訊號提示該懷疑**，但 ASR 會系統性錯（同音字 / 數量級 / 產品名 / 修飾語壓縮），摘要層還會憑空生出「決策與行動項目」。**How to apply**：判定是否為轉錄產出 → 列出專有名詞 + 數字逐項查證 → 掃「決策 / 行動項目」區塊，符合虛構訊號者**整段排除** → entity 內建「查證更正表」（原文 → 實際 → 類型）→ chat 報告查到幾處錯誤。
+
+### 經驗法則 8：儀表板五問法——以使用者的問題重排，不是以資料結構呈現
+
+> 報表／儀表板類交付，先問「使用者打開這頁要回答什麼問題」，以問題清單重排資訊層次；每個數字配三段式白話（來源 / 怎麼算 / 怎麼讀）。詳細：`wiki/rules/heuristic-8-dashboard-five-questions.md`。
+
+**Why**：技術上正確的頁面（資料鏈全對、測試全綠）仍可能讓使用者「看不懂、不如訂閱現成服務」——**「信任底盤」與「決策畫面」是兩層，前者不能替代後者**。**How to apply**：先問出問題清單 → 資訊層次＝問題順序 → 結論置頂、機件折疊 → 每指標配「來源 / 怎麼算 / 怎麼讀（含不代表什麼）」→ 裸數字必配歷史對照 → 誠實缺口同版面。
 
 ---
 
@@ -720,6 +833,12 @@ WHERE status = "draft"
 | 「批次升 stable」/「審草稿」 | wiki-status-promote skill |
 | 「我加了一份新檔到 00-Inbox/」 | 等具體指示 ingest，**不要自動 ingest** |
 | 「整理一下這份」 | 問清楚是要 ingest 到 wiki/ 還是只是摘要 |
+| 動 `20-Projects/<name>/` 子目錄任何檔案 | **規則 Q**：先讀 `_<name>_MOC`（規則 O）→ show before write（規則 E）→ 動完同步 `_MOC` + 上游索引 → chat cite cascade（規則 P）|
+| 動 `_MOC.md` / 含索引 `README.md` 所在層任何 .md 檔 | **規則 R**：動完 bump 該層 `_MOC` / README 的 frontmatter `updated:` 為當日 |
+| 寫「目前 / 現在 + 數字」的事實 | **規則 S**：先判快慢事實——快的加 `（as of YYYY-MM）` 或改存 pointer，不留無日期的現在式宣稱 |
+| 要說「完成 / 通過 / 全綠 / 沒問題」 | **規則 T**：攤開判準逐項對照，不得只給單一結論；任一項未滿足就不能標完成 |
+| 素材是 AI 轉錄產物（逐字稿 / AI 摘要 / 會議紀要）| **經驗法則 7**：專有名詞與數字逐項查證 + 掃虛構的「決策 / 行動項目」，entity 內建更正表 |
+| 「做個儀表板 / 報表 / 看板」 | **經驗法則 8**：先問「你打開這頁要回答什麼問題」，用問題順序排版面 |
 
 ---
 
@@ -730,9 +849,11 @@ WHERE status = "draft"
 
 ---
 
-## 13. 工具 SOP — 永遠 recursive 掃 entities/
+## 13. 工具 SOP — 四條鐵則
 
-**鐵則**：任何掃 `wiki/entities/` 的工具必須遞迴。
+### 鐵則 1：永遠 recursive 掃 entities/
+
+任何掃 `wiki/entities/` 的工具必須遞迴。
 
 ```python
 # ✅ 對
@@ -743,6 +864,62 @@ Path("wiki/entities").glob("*.md")
 ```
 
 **Lint 掃描範圍 = inlinks 計算範圍**：lint.py 只掃 `wiki/entities/` + `wiki/maps/`。修復孤兒頁要在這兩個目錄內加 backlink。
+
+### 鐵則 2：搬動 / 改名 `wiki/tools/` 內的腳本，必 grep 全 vault 路徑引用
+
+腳本一旦被寫進多個文件（規範、索引、命令範例），搬家就會留下一堆失效路徑。
+
+```bash
+grep -rn "腳本名.py" . --include='*.md'
+```
+
+逐一同步。**踩過的實例**：一支工具從 `outputs/` 移到 `wiki/tools/`，兩份文件共 6 處路徑同時 drift。
+
+### 鐵則 3：跨平台檔案存取（BOM + 編碼）
+
+**共同點：這兩件事都「在寫它的那台機器上驗不出來」。**
+
+**3a｜BOM 契約**
+
+```
+.ps1 → 要 BOM   （PowerShell 5.1 讀無 BOM 的 .ps1 會當成 ANSI → 中文全亂碼、整支跑不起來）
+.sh  → 不要 BOM （bash 會把 BOM 當成指令的一部分）
+.md  → 不要 BOM
+```
+
+⚠️ 「`.sh` / `.ps1` 是雙胞胎」**只適用內容，編碼恰好相反**。
+🔴 殺傷力在**來源平台驗不到**：在 macOS 改 `.ps1` 加中文註解，本機十項驗證全過（macOS 預設 UTF-8，讀起來完全正常），到 Windows 卻是十幾個語法錯誤、而且錯誤訊息跟編碼毫無關係。**「我驗過了」要問的是「驗在哪個平台」。**
+
+**3b｜Python 文字讀寫一律顯式 `encoding="utf-8"`**
+
+不指定就用各機 locale 預設：macOS 是 UTF-8（正常），**Windows 是 cp950**（中文全亂碼）。
+
+```python
+# ✅ 對                                    # ❌ 錯（Windows 上靜默壞掉）
+p.read_text(encoding="utf-8")              p.read_text()
+p.write_text(s, encoding="utf-8")          p.write_text(s)
+open(p, encoding="utf-8")                  open(p)
+```
+
+🔴 踩過的實例：某自檢腳本四處沒指定 → 中文判準在 Windows **永遠比對不到** ⇒ 自檢在那台**永遠誤報**；而它帶 `--fix`，等於**照著一個永遠成立的假警報去覆寫沒壞的東西**。
+⚠️ **一則腳本註解救不了隔壁的檔**——同一時刻另一支姊妹工具還帶著同樣的病在跑。規則要寫在規範裡（或做成寫入時的機械檢查），不是寫在被修好的那個檔的註解裡。
+
+### 鐵則 4：腳本式整檔重寫，不得直接開檔覆寫
+
+> 先在記憶體完成內容生成**與目標編碼**；確認編碼成功後，寫入同目錄暫存檔，驗證可解碼及基本完整性，**再原子替換**。任何一步失敗都保留原檔不變。
+
+```python
+# ✅ 對：編碼成功才碰目標檔                    # ❌ 錯：開檔即截斷，編碼失敗時原檔已毀
+data = new_text.encode("utf-8")               open(p, "w", encoding="utf-8").write(new_text)
+tmp = p.with_suffix(p.suffix + ".tmp")
+tmp.write_bytes(data)
+assert tmp.read_text(encoding="utf-8")        # 驗證可解碼
+os.replace(tmp, p)                            # 原子替換
+```
+
+🔴 為什麼這條擋得住而「先算完再開檔」擋不住：改一份原始碼時，Python 字串裡的 `\uD800` 轉義被折疊成**真的孤兒代理字元** ⇒ 字串**生成成功** ⇒ 但 `open(p,'w')` **當場截斷檔案** ⇒ 才在 `write()` 的**編碼**那步炸掉 ⇒ 檔案損毀。
+⭐ **心法：失敗點與破壞點可以不在同一步。** 只要「開檔」早於「編碼」，中間那個縫就一直在。
+⚠️ 含 `\u` / `\U` / surrogate 轉義的程式碼，**優先用 Edit 逐段改**，別讓內容多經一層字串解析。適用範圍限**腳本式整檔重寫**，一般小幅 Edit 不必背這套流程。
 
 ---
 

@@ -5,7 +5,7 @@ domain: wiki
 status: stable
 tags: [wiki, sop, propagation, maintenance, rules]
 created: 2026-01-01
-updated: 2026-05-11
+updated: 2026-08-13
 aliases: [Propagation Matrix, Wiki cascade rules, 連動更新規則]
 cssclasses: [wide]
 ---
@@ -15,6 +15,7 @@ cssclasses: [wide]
 | 版本 | 日期 | 主要變動 |
 |------|------|---------|
 | v1.0 | 2026-01-01 | 模板初版（移植自 karpathy-wiki-pattern）|
+| v1.1 | 2026-08-13 | 新增 §8.5（PARA project 子目錄異動 = 規則 Q）+ §8.6（`_MOC` / 含索引 README 同層異動 = 規則 R），配合 CLAUDE.md v1.9 |
 
 ---
 
@@ -223,6 +224,52 @@ grep -rn "v1\.X" $VAULT --include='*.md' | grep -v daily/  # 找所有提到舊�
 - 直接刪除原檔（破壞歷史連結）
 - 跳過 cascade-edit（active files 連結會壞）
 - 改 entity 的 basename 卻不留 stub（[[wikilink]] 全壞）
+
+---
+
+## 8.5 PARA project 子目錄異動（規則 Q）
+
+**觸發**：動 `20-Projects/<name>/` 子目錄內任何檔案（新建 / 修改 / 刪除 / 改名 / 新建 project）。
+
+### 🔴 強制 cascade
+
+| 檔案 | 何時改 |
+|------|------|
+| `20-Projects/<name>/_<name>_MOC.md` 📚 文件總索引 | 新建 / 刪除 / 改名文件 |
+| 同檔 🚦 目前進度 | 修改核心文件、Phase 切換 |
+| 同檔 frontmatter `updated:` | **永遠**（任何異動）|
+| 上游索引（`index.md` 的進行中專案清單）| 新建 / 結案 project |
+| 該文件自身版本歷程（規則 H）| 核心文件大改 |
+
+### ⚠️ 例外（不必動 `_MOC`）
+
+純筆誤 / 標點；臨時對外草稿（只動對應索引）；Attachments 圖片更新；子目錄 README 小調整。
+
+### 💬 chat 報告
+
+`依 §8.5 + 規則 Q，本次「<動作>」已 cascade：① _MOC 📚 索引 ② frontmatter updated ③ …`
+
+---
+
+## 8.6 `_MOC` / 含索引 README 同層異動（規則 R）
+
+**觸發**：動任何 `.md` 檔，且**該層有** `_MOC.md` 或含同層索引的 `README.md`（`20-Projects` 除外，已由 §8.5 覆蓋）。
+
+### 🔴 強制 cascade
+
+| 檔案 | 動作 |
+|------|------|
+| 該層 `_MOC.md` frontmatter `updated:` | 改為當日（無此欄位則新增，放 `created:` 之後）|
+| 該層含索引 `README.md` frontmatter `updated:` | 同上 |
+| 該層 `_MOC` / README 的索引表 | 若異動是新建 / 刪除 / 改名 → 同步該 row |
+
+### ⚠️ 不觸發
+
+純導覽 stub 型 README（只有「← 回到 index」）；純筆誤 / 標點；Attachments 圖片更新；Dataview 後台資料變化。
+
+### 💬 chat 報告
+
+`依 §8.6 + 規則 R，已 bump：<檔清單>`
 
 ---
 
