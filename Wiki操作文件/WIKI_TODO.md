@@ -50,7 +50,7 @@ cssclasses: [wide]
 |------|------|
 | **補 §0 版本歷程** | 對 stable artifact 依規則 H 補版本歷程 |
 | **建立 wiki/maps/ MOC** | 建跨主題地圖（需要 20+ entity 才有意義）|
-| **評估 Quartz 部署** | 把 vault 發布成靜態網站（[[CLAUDE]] §10 規則 F/G 相關）|
+| **評估 Quartz 部署** | 把 vault 發布成靜態網站（部署流程不屬本模板規範範圍，自行制定版本鎖定與備份策略）|
 
 ---
 

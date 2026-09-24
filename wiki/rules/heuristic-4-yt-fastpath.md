@@ -4,9 +4,9 @@ domain: wiki
 type: rule
 status: stable
 created: 2026-08-13
-updated: 2026-08-13
+updated: 2026-09-24
 tags: [rule, heuristic, youtube, whisper, yt-dlp, workflow]
-aliases: [heuristic-4, YT fast-path]
+aliases: [heuristic-4, YT fast-path, 易過期參數查表]
 ---
 
 # 經驗法則 4：YT 報告 fast-path
@@ -46,6 +46,27 @@ yt-dlp -f bestaudio --extractor-args "youtube:player_client=android" \
 mlx_whisper /tmp/aud.mp3 --model mlx-community/whisper-large-v3-turbo \
   --language zh --output-format txt
 ```
+
+### 🔴 平台端參數是會過期的值，不是定值
+
+`player_client` 這類「繞過抓取限制」用的參數，服務端會不定期調整——今天能用的值明天可能失敗，也可能反過來。**不要把它寫死在指令範例裡當成永久答案**。
+
+**做法**：另外維護一份「日期 + 實測結果」的小表，撞牆時**先查表**、從最近一次成功的值開始試，不要照抄範例裡的舊值，也不要背一個固定的嘗試順序——**順序本身也是會過期的值**。
+
+⭐ **心法：把一個會變的值寫進規範本體，等於規範每隔一段時間就自動變成錯的。** 快速變動的事實要用「帶日期的觀測記錄」呈現，不要用單一的現在式陳述（同規則 S，`wiki/rules/rule-S-fact-freshness.md`）。
+
+### 🔴 驗證「能不能抓」的探針必須真的執行（規則 U）
+
+快篩多個候選參數時，容易踩兩種相反方向的錯：
+
+| 探針寫法 | 錯法 | 為什麼 |
+|---|---|---|
+| 只印出格式清單、不下載 | **假綠** | 只證明「解析得到」，不代表真的抓得到——某些設定能列出格式，實際下載卻被擋 |
+| 只切一小段測試 | **假紅** | 失敗可能卡在「切片」那一步，跟參數能不能下載無關，會誤判一個其實可行的參數 |
+
+⭐ **測「能不能抓」就要真的抓一次完整檔案**（或至少確認落地檔案存在且大小合理），不能只看「有沒有報錯」（詳見規則 U，`wiki/rules/rule-U-expectation-traceability.md`）。
+
+⚠️ **shell 陷阱提醒**：用變數組合命令列參數時，不同 shell 對「未加引號的變數展開」處理不同（有的會自動拆字，有的不會）——命令送出前，先確認參數真的照你以為的樣子被拆開，再去懷疑工具本身。
 
 **必守**：
 
