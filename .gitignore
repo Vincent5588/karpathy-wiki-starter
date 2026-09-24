@@ -7,6 +7,9 @@
 .DS_Store
 Thumbs.db
 
+# 個人維運腳本（本機專用，不進模板）
+push.bat
+
 # 個人 daily notes（不 commit 進 template）
 00-Inbox/Daily/
 
