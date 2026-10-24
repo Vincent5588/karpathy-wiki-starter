@@ -15,3 +15,7 @@ push.bat
 
 # 個人筆記（如果你不想 commit 進 repo）
 # 10-Notes/
+
+# Python 編譯快取
+__pycache__/
+*.pyc
