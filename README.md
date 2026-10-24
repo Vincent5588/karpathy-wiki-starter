@@ -99,7 +99,7 @@ git commit -m "init: my wiki vault (forked from karpathy-wiki-starter v1.0)"
 **3. 外掛（都已內建）**
 
 - **Obsidian 外掛**：Dataview、Templater、Omnisearch、Excalidraw 已經放在 `.obsidian/plugins/`。第一次打開 vault 時 Obsidian 會問要不要信任作者並啟用社群外掛，選信任即可。
-- **Claude 技能**（`karpathy-wiki-pattern` v1.4.5 公開版，8 個技能：ingest、lint、query、repair、compile、status-promote、notion-sync、youtube-to-notebooklm）：
+- **Claude 技能**（`karpathy-wiki-pattern` v1.4.5 公開版，7 個技能：ingest、lint、query、repair、compile、status-promote、youtube-to-notebooklm）：
   - **Claude Code**：已內建在 `.claude/skills/`，在 vault 根目錄開 `claude` 就自動載入，不用另外安裝
   - **Claude 桌面版的 Cowork**：把 `plugin/karpathy-wiki-pattern-v1.4.5.plugin` 拖進 Cowork 視窗，照提示安裝
   - 兩種只要擇一，不要兩邊都裝，否則同一個技能會出現兩次
@@ -170,7 +170,7 @@ my-wiki/
 │   └── PROGRESS.md     ← 新 session 必讀狀態面板
 ├── Templates/          ← 筆記模板
 ├── Attachments/        ← 圖片 / 附件
-├── .claude/skills/     ← Claude 技能 8 個（Claude Code 自動載入）
+├── .claude/skills/     ← Claude 技能 7 個（Claude Code 自動載入）
 ├── plugin/             ← 同一套技能的安裝檔（給 Cowork 用）
 └── CLAUDE.md           ← AI 行為規範（核心）
 ```
@@ -216,5 +216,5 @@ wiki/entities/
 ## 授權 & 致謝
 
 - 架構來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-- Plugin：karpathy-wiki-pattern v1.4.5 公開版（`.claude/skills/`、`plugin/`；MIT）。跟維護者自用版的差別只在範例：改成虛構的訂單系統等通用領域，並移除個人 vault 名稱
+- Plugin：karpathy-wiki-pattern v1.4.5 公開版（`.claude/skills/`、`plugin/`；MIT）。跟維護者自用版的差別只在範例：改成虛構的訂單系統等通用領域、移除個人 vault 名稱，並拿掉 Notion 同步
 - 模板維護：歡迎 PR / Issue

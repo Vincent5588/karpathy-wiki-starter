@@ -144,9 +144,8 @@ Step 1-2 找到 2 個相關頁但不完整
 | **wiki-ingest** | raw → wiki（寫單檔） |
 | **wiki-compile** | 長文檔 → wiki（寫多檔） |
 | **wiki-lint** | wiki 自身（檢查） |
-| **wiki-notion-sync** | wiki → Notion（推送） |
 
-→ 4 個寫入 / 檢查 / 推送 + 1 個讀取（wiki-query）= 完整生命週期。
+→ 3 個寫入 / 檢查 + 1 個讀取（wiki-query）= 完整生命週期。
 
 ## 範例：用訂單系統的 wiki 問問題
 

@@ -20,7 +20,7 @@ cssclasses: [wide]
 |---|---|---|
 | PARA 資料夾＋收件匣 | `00-Inbox/`～`50-Archive/` | 每個資料夾都有 README，說明放什麼 |
 | 給 AI 的說明書 | `CLAUDE.md` | 結構、哪些不能改、整理流程、改之前要先問你 |
-| Claude 技能 8 個 | `.claude/skills/`（Claude Code 自動載入）、`plugin/`（Cowork 安裝檔） | 收進來（ingest）、健康檢查（lint）、查詢（query）、修補（repair）、長文編譯、審草稿、同步 Notion、YouTube 轉報告 |
+| Claude 技能 7 個 | `.claude/skills/`（Claude Code 自動載入）、`plugin/`（Cowork 安裝檔） | 收進來（ingest）、健康檢查（lint）、查詢（query）、修補（repair）、長文編譯、審草稿、YouTube 轉報告 |
 | 拆出的規則 | `wiki/rules/` | 每條規則的細節與理由，AI 需要時才讀 |
 | 連動清單 | `Wiki操作文件/Wiki_維護觸發規則.md` | 改了 A 要同步改哪些 B |
 | 健康檢查工具 | `wiki/tools/lint.py` | 找孤兒頁、壞連結、缺的概念，算分數 |

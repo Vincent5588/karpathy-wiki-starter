@@ -3,7 +3,7 @@
 > 本檔給進入此 vault 的 LLM agent（Claude Code / Cowork / Codex / Cursor 等）讀。
 > 規範你在維護本 vault 時要遵守的結構、慣例、工作流程。
 > 模式來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-> Plugin release：**karpathy-wiki-pattern v1.4.5 公開版**（含 8 skills；Claude Code 從 `.claude/skills/` 自動載入，Cowork 用 `plugin/` 的安裝檔）
+> Plugin release：**karpathy-wiki-pattern v1.4.5 公開版**（含 7 skills，不含 Notion 同步；Claude Code 從 `.claude/skills/` 自動載入，Cowork 用 `plugin/` 的安裝檔）
 > Vault patch：**v1.11**（內建 PKM 入門教材 `40-Resources/PKM入門/`＋plugin v1.4.5 公開版；§1 結構樹補註）
 
 ---
@@ -64,7 +64,7 @@ my-wiki/
 ├── 50-Archive/             ← PARA: 已封存
 ├── Templates/              ← 筆記模板
 ├── Attachments/            ← 圖片 / PDF 附件
-├── .claude/skills/         ← karpathy-wiki-pattern 8 個 skill（Claude Code 在 vault 根目錄啟動時自動載入）
+├── .claude/skills/         ← karpathy-wiki-pattern 7 個 skill（Claude Code 在 vault 根目錄啟動時自動載入）
 ├── plugin/                 ← 同一套 skill 的 .plugin 安裝檔（給 Cowork）；改 skill 時兩邊要一起改
 ├── Wiki操作文件/            ← wiki 維護文件（健康度監控 / 儀表板 / SOP / 觸發規則等）
 │   └── CLAUDE_versions.md  ← CLAUDE.md 版本歷程 SSOT
