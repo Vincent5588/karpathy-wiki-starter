@@ -3,8 +3,8 @@
 > 本檔給進入此 vault 的 LLM agent（Claude Code / Cowork / Codex / Cursor 等）讀。
 > 規範你在維護本 vault 時要遵守的結構、慣例、工作流程。
 > 模式來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-> Plugin release：**karpathy-wiki-pattern v1.4.3**（含 8 skills）
-> Vault patch：**v1.10**（規則 U 移入；§4 type 停用清單、§13 鐵則 3c 行尾紀律、經驗法則 9 新增、經驗法則 4/5 補充）
+> Plugin release：**karpathy-wiki-pattern v1.4.5 公開版**（含 8 skills；Claude Code 從 `.claude/skills/` 自動載入，Cowork 用 `plugin/` 的安裝檔）
+> Vault patch：**v1.11**（內建 PKM 入門教材 `40-Resources/PKM入門/`＋plugin v1.4.5 公開版；§1 結構樹補註）
 
 ---
 
@@ -22,8 +22,9 @@
 
 ## 0. 版本歷程
 
-> **v1.10**（2026-09-24）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
-> v1.10 新增規則 U（判定用預期必須可達且有鑑別力）+ 經驗法則 9（治理工具改動節流 ＋ 以人為尊）；§4 type 停用清單加入「別為單一內容偷懶開新 type」心法；§13 鐵則 3 補 3c 行尾紀律；經驗法則 4 補「易過期參數查表不查記憶 + 驗證探針必須真的執行」；經驗法則 5 補「待解看承重點」+「inlinks 不代表值得獨立成頁」。
+> **v1.11**（2026-10-24）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
+> v1.11 內建 PKM 入門教材 `40-Resources/PKM入門/`（方法論總覽、PKM 與 PKA 架構、vault 建置與上手）；內建 plugin v1.4.5 公開版（`.claude/skills/` 給 Claude Code、`plugin/` 給 Cowork，原本只寫「附帶」但沒有附）；§1 結構樹補註。
+> v1.10（2026-09-24）新增規則 U（判定用預期必須可達且有鑑別力）+ 經驗法則 9（治理工具改動節流 ＋ 以人為尊）；§4 type 停用清單加入「別為單一內容偷懶開新 type」心法；§13 鐵則 3 補 3c 行尾紀律；經驗法則 4 補「易過期參數查表不查記憶 + 驗證探針必須真的執行」；經驗法則 5 補「待解看承重點」+「inlinks 不代表值得獨立成頁」。
 > v1.9（2026-08-13）新增規則 Q/R/S/T + 經驗法則 4-8；§6 補 Wikilink 語法紀律、§13 補工具鐵則 2-4。
 
 ---
@@ -58,10 +59,13 @@ my-wiki/
 ├── 20-Projects/            ← PARA: 進行中專案
 ├── 30-Areas/               ← PARA: 長期領域
 ├── 40-Resources/           ← PARA: 主題參考資料
-│   └── <主題>/             （依 domain 內主題建子目錄分類）
+│   ├── <主題>/             （依 domain 內主題建子目錄分類）
+│   └── PKM入門/            （模板內建入門教材；不是使用者素材，不要主動 ingest；使用者可刪或封存）
 ├── 50-Archive/             ← PARA: 已封存
 ├── Templates/              ← 筆記模板
 ├── Attachments/            ← 圖片 / PDF 附件
+├── .claude/skills/         ← karpathy-wiki-pattern 8 個 skill（Claude Code 在 vault 根目錄啟動時自動載入）
+├── plugin/                 ← 同一套 skill 的 .plugin 安裝檔（給 Cowork）；改 skill 時兩邊要一起改
 ├── Wiki操作文件/            ← wiki 維護文件（健康度監控 / 儀表板 / SOP / 觸發規則等）
 │   └── CLAUDE_versions.md  ← CLAUDE.md 版本歷程 SSOT
 └── index.md                ← wiki 主目錄（必須能裝進單一 context window）
@@ -862,7 +866,7 @@ WHERE status = "draft"
 ## 12. 詳細參考
 
 - 完整 LLM Wiki 模式說明：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-- Plugin skills 文件：`karpathy-wiki-pattern/skills/` 下各 SKILL.md
+- Plugin skills 文件：`.claude/skills/` 下各 SKILL.md（同一套也打包在 `plugin/`）
 
 ---
 

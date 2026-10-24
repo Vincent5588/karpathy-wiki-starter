@@ -11,7 +11,7 @@ cssclasses: [wide]
 
 > 最後更新：YYYY-MM-DD
 >
-> **目前狀態**：**0 entities** / **0 maps** / Lint Score **—** / Plugin **v1.4.3** / vault patch **v1.0**
+> **目前狀態**：**0 entities** / **0 maps** / Lint Score **—** / Plugin **v1.4.5** / vault patch **v1.0**
 
 ---
 

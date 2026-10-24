@@ -59,6 +59,8 @@ LLM Wiki Pattern 的核心想法：
 你的角色：收集 + 判斷  
 Claude 的角色：閱讀 + 抽概念 + 建連結 + 整理
 
+> 📖 **想多了解？** vault 裡內建了入門教材 `40-Resources/PKM入門/`：卡片盒、第二大腦、LLM Wiki、PKA 個人知識助理各解決什麼問題，AI 和人各做什麼，第一週怎麼練（三篇，約 30 分鐘；讀完可刪）。
+
 ---
 
 ## 5 分鐘 Setup
@@ -66,7 +68,7 @@ Claude 的角色：閱讀 + 抽概念 + 建連結 + 整理
 ### 前置需求
 
 - [Obsidian](https://obsidian.md/)（免費）
-- [Claude Code](https://claude.ai/code)（需要 Anthropic API key）
+- [Claude Code](https://claude.ai/code)（Claude 訂閱或 Anthropic API key 都可以）
 
 ### 步驟
 
@@ -94,13 +96,13 @@ git commit -m "init: my wiki vault (forked from karpathy-wiki-starter v1.0)"
 **2. 用 Obsidian 打開**
 - 開啟 Obsidian → Open folder as vault → 選 `my-wiki` 資料夾
 
-**3. 啟用必要外掛**
+**3. 外掛（都已內建）**
 
-在 Obsidian Settings → Community plugins → 搜尋並安裝：
-- **Dataview**（查詢用）
-- **Templater**（模板用，選用）
-
-本 repo 附帶的 `karpathy-wiki-pattern` plugin 需手動複製到你的 vault 外掛目錄，或等待 Obsidian 社群外掛上架。
+- **Obsidian 外掛**：Dataview、Templater、Omnisearch、Excalidraw 已經放在 `.obsidian/plugins/`。第一次打開 vault 時 Obsidian 會問要不要信任作者並啟用社群外掛，選信任即可。
+- **Claude 技能**（`karpathy-wiki-pattern` v1.4.5 公開版，8 個技能：ingest、lint、query、repair、compile、status-promote、notion-sync、youtube-to-notebooklm）：
+  - **Claude Code**：已內建在 `.claude/skills/`，在 vault 根目錄開 `claude` 就自動載入，不用另外安裝
+  - **Claude 桌面版的 Cowork**：把 `plugin/karpathy-wiki-pattern-v1.4.5.plugin` 拖進 Cowork 視窗，照提示安裝
+  - 兩種只要擇一，不要兩邊都裝，否則同一個技能會出現兩次
 
 **4. 啟用 wide-pages CSS snippet（讓表格顯示正常）**
 
@@ -158,6 +160,7 @@ my-wiki/
 ├── 20-Projects/        ← 進行中的專案
 ├── 30-Areas/           ← 長期關注的領域
 ├── 40-Resources/       ← 主題參考資料
+│   └── PKM入門/        ← 內建入門教材（讀完可刪）
 ├── 50-Archive/         ← 封存
 ├── wiki/               ← AI 維護的知識編譯層（不要手動大改）
 │   ├── entities/       ← 知識卡片（domain/type/名稱.md）
@@ -167,6 +170,8 @@ my-wiki/
 │   └── PROGRESS.md     ← 新 session 必讀狀態面板
 ├── Templates/          ← 筆記模板
 ├── Attachments/        ← 圖片 / 附件
+├── .claude/skills/     ← Claude 技能 8 個（Claude Code 自動載入）
+├── plugin/             ← 同一套技能的安裝檔（給 Cowork 用）
 └── CLAUDE.md           ← AI 行為規範（核心）
 ```
 
@@ -211,5 +216,5 @@ wiki/entities/
 ## 授權 & 致謝
 
 - 架構來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-- Plugin：karpathy-wiki-pattern
+- Plugin：karpathy-wiki-pattern v1.4.5 公開版（`.claude/skills/`、`plugin/`；MIT）。跟維護者自用版的差別只在範例：改成虛構的訂單系統等通用領域，並移除個人 vault 名稱
 - 模板維護：歡迎 PR / Issue
