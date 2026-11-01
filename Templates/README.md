@@ -13,6 +13,7 @@
 | `New Entity.md` | wiki entity 骨架（含完整 frontmatter）| 想手動建 entity 時（不走 LLM ingest）|
 | `Wiki Daily Log.md` | LLM 操作日誌骨架 | LLM 每日首次操作時自動建 `wiki/daily/YYYY/MM/YYYY-MM-DD.md` |
 | `Personal Daily.md` | 個人 daily note 骨架 | 你自己寫 `00-Inbox/Daily/YYYY-MM-DD.md` 時 |
+| `Mermaid 圖範本.md` | Mermaid 圖的深色樣式碼（共用開頭、九類語意色、完整範例、用 Pele 匯出）| 畫任何 Mermaid 圖時，從這裡複製（規則 W）|
 
 ## ✅ 怎麼用
 
@@ -46,6 +47,7 @@ Templates/
 ├── New Entity.md           ← 內建
 ├── Wiki Daily Log.md       ← 內建
 ├── Personal Daily.md       ← 內建
+├── Mermaid 圖範本.md        ← 內建
 ├── Meeting Note.md         ← 你新增
 ├── Book Summary.md         ← 你新增
 └── ...

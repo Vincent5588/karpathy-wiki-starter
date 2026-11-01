@@ -1,0 +1,10 @@
+{
+  "name": "vault-pele-render",
+  "private": true,
+  "version": "1.0.0",
+  "description": "規則 W 用的 Pele 渲染器相依套件；版本固定，升版要先用 Mermaid 圖範本重畫驗證",
+  "type": "module",
+  "dependencies": {
+    "pele": "1.13.0"
+  }
+}

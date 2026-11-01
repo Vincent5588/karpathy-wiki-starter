@@ -4,7 +4,7 @@
 > 規範你在維護本 vault 時要遵守的結構、慣例、工作流程。
 > 模式來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 > Plugin release：**karpathy-wiki-pattern v1.4.5 公開版**（含 7 skills，不含 Notion 同步；Claude Code 從 `.claude/skills/` 自動載入，Cowork 用 `plugin/` 的安裝檔）
-> Vault patch：**v1.11**（內建 PKM 入門教材 `40-Resources/PKM入門/`＋plugin v1.4.5 公開版；§1 結構樹補註）
+> Vault patch：**v1.12**（新增規則 W：Mermaid 視覺規範＋匯出工具 `wiki/tools/pele/`＋`Templates/Mermaid 圖範本.md`）
 
 ---
 
@@ -22,8 +22,9 @@
 
 ## 0. 版本歷程
 
-> **v1.11**（2026-10-24）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
-> v1.11 內建 PKM 入門教材 `40-Resources/PKM入門/`（方法論總覽、PKM 與 PKA 架構、vault 建置與上手）；內建 plugin v1.4.5 公開版（`.claude/skills/` 給 Claude Code、`plugin/` 給 Cowork，原本只寫「附帶」但沒有附）；§1 結構樹補註。
+> **v1.12**（2026-11-01）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
+> v1.12 新增規則 W（Mermaid 視覺規範：共用開頭、九類語意色、分區留白；匯出與展示的圖優先用 Pele 畫成 SVG／PNG）；新範本 `Templates/Mermaid 圖範本.md`、新工具 `wiki/tools/pele/`（Pele 版本鎖定、每台電腦各裝一次）；§11 Quick Reference 加 1 row、§15 加 15.1。
+> v1.11（2026-10-24）內建 PKM 入門教材 `40-Resources/PKM入門/`（方法論總覽、PKM 與 PKA 架構、vault 建置與上手）；內建 plugin v1.4.5 公開版（`.claude/skills/` 給 Claude Code、`plugin/` 給 Cowork，原本只寫「附帶」但沒有附）；§1 結構樹補註。
 > v1.10（2026-09-24）新增規則 U（判定用預期必須可達且有鑑別力）+ 經驗法則 9（治理工具改動節流 ＋ 以人為尊）；§4 type 停用清單加入「別為單一內容偷懶開新 type」心法；§13 鐵則 3 補 3c 行尾紀律；經驗法則 4 補「易過期參數查表不查記憶 + 驗證探針必須真的執行」；經驗法則 5 補「待解看承重點」+「inlinks 不代表值得獨立成頁」。
 > v1.9（2026-08-13）新增規則 Q/R/S/T + 經驗法則 4-8；§6 補 Wikilink 語法紀律、§13 補工具鐵則 2-4。
 
@@ -794,6 +795,12 @@ WHERE status = "draft"
 
 **Why**：判準錯最常見的形狀不是「寫錯」，是「指向一個實際不會發生的東西」——**走不到＝假紅**（判準永遠無法通過，且失敗理由與被檢查的缺陷無關，常見於突變／修改動作已拿掉了產生某預期值的條件，判準文字卻沒跟著更新）；**分不出＝假綠**（判準能被滿足，但滿足方式跟被檢查的行為無關——例如兩邊比對用了不同的大小寫規則，看似鎖上了，實際鎖的是兩把不同的鎖，受測的東西永遠不會被真正擋住）。**可達但無鑑別力，仍然是假證據**，不是假紅的附錄。**How to apply**：寫判準當下自問四題——① 誰產生這個值（指到具體程式碼／設定／外部契約，不是「應該會」）② 依據是現行實作還是尚未實作的規劃（後者要標明「未實作」，不與現行行為混寫）③ 在本案例前提下走得到嗎（特別檢查前提是否已排除產生該值的條件）④ 觀測到了能否排除旁路、自證或兩邊一起錯。
 
+### 規則 W：Mermaid 視覺規範（Obsidian Dark — Grouped Workflow）
+
+> vault 內**新寫或被改到**的 Mermaid 圖（Obsidian 筆記＋HTML 報告）一律套同一套深色配色：**共用開頭**（所有圖種）＋**九類語意色**（流程圖每個節點都掛 class、10px 圓角）＋深藍／深紫分區面板；**匯出與展示的成品優先用 Pele 畫成 SVG／PNG**。既有圖不另開遷移工程，改到該檔時順手換。詳細：`wiki/rules/rule-W-mermaid-visual-style.md`；可複製的碼：`Templates/Mermaid 圖範本.md`。
+
+**Why**：圖各自配色，整個 vault 看起來就像好幾個人拼起來的；而且 Obsidian 深色模式會把 Mermaid 圖整張反相、連線標籤會讀不到、iPhone 上圓角會消失——這些坑每張圖都要重踩一次，不如一份範本一次解決。**How to apply**：貼範本、每個節點掛 class、寫完在 Obsidian 深色模式預覽一次（看截圖，不是讀色碼）；共用開頭裡的 `themeCSS` 與 `edgeLabelBackground` 不要刪；圓角一定寫 `rx:10px`（不帶單位時 Safari／iPhone 上是直角）。**匯出、HTML 報告、給 vault 以外的人看的圖**用 `node wiki/tools/pele/render.mjs <筆記.md> <輸出.svg> --png <輸出.png>` 從同一份原文畫，配色只來自 `wiki/tools/pele/rule-w-pele.css`；每台電腦先跑一次 `wiki/tools/pele/install.sh`（Windows 用 `install.ps1`）；Pele 畫不出來才回退原生 Mermaid。Obsidian 筆記裡的區塊照舊由 Obsidian 畫，Pele 改不了它。
+
 ---
 
 ### 經驗法則 3：「文件即真理」失效要回查 source（v1.3.8）
@@ -860,6 +867,7 @@ WHERE status = "draft"
 | 要寫 rubric／測試／驗收判準 | **規則 U**：自問四題——誰產生這個值／依據現行還是未實作／本案例前提下走得到嗎／能否排除旁路自證；走不到是假紅，分不出是假綠 |
 | 素材是 AI 轉錄產物（逐字稿 / AI 摘要 / 會議紀要）| **經驗法則 7**：專有名詞與數字逐項查證 + 掃虛構的「決策 / 行動項目」，entity 內建更正表 |
 | 「做個儀表板 / 報表 / 看板」 | **經驗法則 8**：先問「你打開這頁要回答什麼問題」，用問題順序排版面 |
+| 畫任何 Mermaid 圖（筆記或 HTML 報告）／改到含舊 Mermaid 圖的檔 | **規則 W**：第一行貼 `Templates/Mermaid 圖範本.md` 的共用開頭；流程圖每個節點都掛九類語意 class（圓角 `rx:10px`，一定要帶單位）；改到含舊圖的檔就順手換成新樣式；寫完在 Obsidian 預覽一次。**匯出、HTML 報告、給外部看的圖優先用 Pele 畫成 SVG／PNG**：`node wiki/tools/pele/render.mjs`（這台沒裝就先跑 `wiki/tools/pele/install.sh`）|
 
 ---
 
@@ -1033,6 +1041,10 @@ cssclasses: [wide]
 | HTML tag 誤判 | `[<text]` | 加引號 `["<text>"]` |
 
 寫完必做：在 Obsidian 預覽渲染一次再 commit。
+
+### 15.1 預設視覺樣式
+
+新寫或被改到的 Mermaid 圖一律套規則 W（`wiki/rules/rule-W-mermaid-visual-style.md`）：深色分區面板、九類語意色、圓角粗體節點、直角連線；匯出與展示的圖用 Pele 畫成 SVG／PNG。程式碼從 `Templates/Mermaid 圖範本.md` 複製；上面三個語法地雷照舊適用。
 
 ---
 

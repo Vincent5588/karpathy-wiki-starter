@@ -103,6 +103,7 @@ git commit -m "init: my wiki vault (forked from karpathy-wiki-starter v1.0)"
   - **Claude Code**：已內建在 `.claude/skills/`，在 vault 根目錄開 `claude` 就自動載入，不用另外安裝
   - **Claude 桌面版的 Cowork**：把 `plugin/karpathy-wiki-pattern-v1.4.5.plugin` 拖進 Cowork 視窗，照提示安裝
   - 兩種只要擇一，不要兩邊都裝，否則同一個技能會出現兩次
+- **Mermaid 圖匯出（選用）**：想把筆記裡的 Mermaid 圖畫成 SVG／PNG 放進報告或傳給別人，每台電腦先裝一次 Pele（需要 Node.js；出 PNG 另需 Chrome 或 Edge）：macOS／Linux 跑 `sh wiki/tools/pele/install.sh`，Windows 跑 `powershell -ExecutionPolicy Bypass -File wiki\tools\pele\install.ps1`。用法見 `Templates/Mermaid 圖範本.md` ⑤。只在 Obsidian 裡看圖的話不用裝
 
 **4. 啟用 wide-pages CSS snippet（讓表格顯示正常）**
 

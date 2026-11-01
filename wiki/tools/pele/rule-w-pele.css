@@ -1,0 +1,20 @@
+/* 規則 W 的 Pele 配色——唯一一份。render.mjs 會把這個檔原樣嵌進每張 SVG；
+   Mermaid 圖範本 ⑤ 只指到這裡，不另抄。改色前先看 wiki/rules/rule-W-mermaid-visual-style.md。 */
+.pele {
+  --pele-bg: #181818;
+  --pele-fg: #E8E8E8;
+  --pele-fg-on-dark: #FFFFFF;
+  --pele-muted: #94A3B8;
+  --pele-line: #64748B;
+  --pele-surface: #191C20;
+  --pele-surface-alt: #111827;
+  --pele-border: #64748B;
+  --pele-accent: #818CF8;
+  --pele-radius: 10px;
+  background: #181818;
+}
+.pele-cluster > rect { fill: #111827; stroke: #334155; }
+.pele-cluster-label { fill: #E8E8E8; }
+/* 分區用了深色填色時，Pele 會把區內連線自動換成 --pele-fg-on-dark（白色）；統一成灰色（2026-11-01 實測） */
+.pele .pele-edge { stroke: var(--pele-line); }
+.pele .pele-edge .pele-marker { fill: var(--pele-line); }

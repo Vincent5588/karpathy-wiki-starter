@@ -2,13 +2,13 @@
 title: "03 Vault 建置與上手：外掛、一次整理、第一週、常見的坑"
 tags: [pkm, 入門, obsidian, llm-wiki, claude-code]
 created: 2026-10-24
-updated: 2026-10-24
+updated: 2026-11-01
 cssclasses: [wide]
 ---
 
 # 03 Vault 建置與上手：外掛、一次整理、第一週、常見的坑
 
-> 📌 **這篇管**：這個 starter 已經做好什麼、還要自己裝什麼、AI 一次整理做了什麼、第一週怎麼練、常見的坑｜**不管**：方法論（看 [[01 方法論總覽]]）、AI 助理分工（看 [[02 PKM與PKA架構]]）
+> 📌 **這篇管**：這個 starter 已經做好什麼、還要自己裝什麼、AI 一次整理做了什麼、第一週怎麼練、怎麼畫流程圖、常見的坑｜**不管**：方法論（看 [[01 方法論總覽]]）、AI 助理分工（看 [[02 PKM與PKA架構]]）
 
 ## 一句話
 
@@ -24,7 +24,8 @@ cssclasses: [wide]
 | 拆出的規則 | `wiki/rules/` | 每條規則的細節與理由，AI 需要時才讀 |
 | 連動清單 | `Wiki操作文件/Wiki_維護觸發規則.md` | 改了 A 要同步改哪些 B |
 | 健康檢查工具 | `wiki/tools/lint.py` | 找孤兒頁、壞連結、缺的概念，算分數 |
-| 範本 | `Templates/` | 概念頁、長文、個人日記、wiki 日誌 |
+| 範本 | `Templates/` | 概念頁、長文、個人日記、wiki 日誌、Mermaid 圖的深色樣式 |
+| 流程圖匯出工具 | `wiki/tools/pele/` | 把 Mermaid 圖畫成 SVG／PNG 給別人看（選用，每台電腦先裝一次） |
 | 內建外掛 | `.obsidian/plugins/` | Dataview、Templater、Omnisearch、Excalidraw |
 | 寬版面 | `.obsidian/snippets/wide-pages.css` | 表格多的頁面不會被擠成一條 |
 | Web Clipper 範本說明 | `Wiki操作文件/Wiki_Web_Clipper_範本.md` | 瀏覽器剪報怎麼存進收件匣 |
@@ -50,22 +51,40 @@ cssclasses: [wide]
 這是整個 vault 最核心的動作。你說 `ingest 00-Inbox/某篇.md`，AI 會：
 
 ```mermaid
+%%{init: {
+  "theme": "base",
+  "themeCSS": "filter: none !important;",
+  "themeVariables": {
+    "background": "#181818", "fontSize": "15px",
+    "primaryColor": "#191C20", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#64748B",
+    "lineColor": "#64748B", "textColor": "#E8E8E8", "titleColor": "#E8E8E8",
+    "clusterBkg": "#111827", "clusterBorder": "#334155", "edgeLabelBackground": "#131313",
+    "noteBkgColor": "#221F18", "noteBorderColor": "#F59E0B", "noteTextColor": "#FFFFFF",
+    "attributeBackgroundColorOdd": "#1B1F23", "attributeBackgroundColorEven": "#191C20",
+    "rowOdd": "#1B1F23", "rowEven": "#191C20",
+    "cScale0": "#1B1B26", "cScale1": "#1F1A23", "cScale2": "#191F1F",
+    "cScale3": "#19231F", "cScale4": "#181D25", "cScale5": "#221F18",
+    "cScale6": "#1B1B26", "cScale7": "#1F1A23", "cScale8": "#191F1F",
+    "cScale9": "#19231F", "cScale10": "#181D25", "cScale11": "#221F18"
+  },
+  "flowchart": {"curve": "stepAfter", "nodeSpacing": 40, "rankSpacing": 100, "padding": 14, "wrappingWidth": 320, "subGraphTitleMargin": {"top": 14, "bottom": 10}}
+}}%%
 flowchart TD
     subgraph PRE["① 先看清楚"]
-        A1["讀收件匣的原始檔"]
-        A2["判斷性質<br/>完整繁中？英文？只有標題的剪報？"]
-        A3["英文、剪報先另做一份報告<br/>專有名詞與數字附查證"]
+        A1["讀收件匣的原始檔"]:::input
+        A2["判斷性質<br/>完整繁中？英文？只有標題的剪報？"]:::check
+        A3["英文、剪報先另做一份報告<br/>專有名詞與數字附查證"]:::agent
     end
-    G1{"給你看：<br/>要拆成哪些概念？"}
+    G1{"給你看：<br/>要拆成哪些概念？"}:::decide
     subgraph BUILD["② 編譯"]
-        B1["每個概念建一頁<br/>標領域、類型、狀態＝草稿"]
-        B2["跟既有的頁面互相連結<br/>發現矛盾就標出來"]
-        B3["網路圖片下載到本機"]
+        B1["每個概念建一頁<br/>標領域、類型、狀態＝草稿"]:::agent
+        B2["跟既有的頁面互相連結<br/>發現矛盾就標出來"]:::agent
+        B3["網路圖片下載到本機"]:::step
     end
     subgraph SYNC["③ 收尾"]
-        C1["更新主目錄 index.md"]
-        C2["寫進今天的日誌"]
-        C3["原始檔照 PARA 歸位<br/>內容不改、檔名不改"]
+        C1["更新主目錄 index.md"]:::step
+        C2["寫進今天的日誌"]:::step
+        C3["原始檔照 PARA 歸位<br/>內容不改、檔名不改"]:::ok
     end
     A1 --> A2
     A2 --> A3
@@ -76,6 +95,16 @@ flowchart TD
     B3 --> C1
     C1 --> C2
     C2 --> C3
+
+    classDef input   fill:#191C20,stroke:#64748B,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef step    fill:#1B1B26,stroke:#818CF8,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef agent   fill:#1F1A23,stroke:#C084FC,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef handoff fill:#181D25,stroke:#60A5FA,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef decide  fill:#221F18,stroke:#F59E0B,stroke-width:2px,stroke-dasharray:4 3,color:#FFFFFF,font-weight:bold
+    classDef check   fill:#191F1F,stroke:#2DD4BF,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef ok      fill:#19231F,stroke:#34D399,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef fail    fill:#241A19,stroke:#F87171,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef archive fill:#191C20,stroke:#94A3B8,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
 ```
 
 **每個概念頁的開頭**都有一段固定欄位，AI 和 Dataview 都靠它分類與過濾：
@@ -106,6 +135,95 @@ updated: 2026-01-01
 | 5 | 問 AI 一個問題，要它「只根據 wiki 回答、附上來源」 |
 | 6 | 說「巡一下 wiki」，看健康檢查報告 |
 | 7 | 回頭看這週：哪些事你願意以後不用再看提案？把它記下來，那是你第一個可以放手的地方 |
+
+## 畫流程圖（Mermaid）
+
+Obsidian 會把 ` ```mermaid ` 區塊直接畫成圖，不用另開繪圖軟體。最基本的寫法只要三行：
+
+```text
+flowchart TD
+    A["開始"] --> B{"要判斷？"}
+    B -->|"是"| C["完成"]
+```
+
+`flowchart TD` 是由上往下畫；`["…"]` 是方框、`{"…"}` 是菱形（判斷）；`-->` 是箭頭，`|"是"|` 是箭頭上的字。
+
+### 套上這個 vault 的深色樣式
+
+這個 vault 的圖都用同一套深色樣式（[[rule-W-mermaid-visual-style|規則 W]]），三個動作：
+
+1. 第一行貼 [[Mermaid 圖範本]] 的「共用開頭」
+2. 每個方框後面掛一類顏色，例如 `A["開始"]:::input`
+3. 最後貼範本的九行 `classDef`
+
+| 顏色類別 | 用在 |
+|---|---|
+| `input` 灰 | 起點、輸入 |
+| `step` 靛 | 一般步驟 |
+| `agent` 紫 | AI 產出 |
+| `handoff` 藍 | 交給下一個人 |
+| `decide` 琥珀虛線 | 要判斷的地方（配菱形） |
+| `check` 青 | 檢查、稽核 |
+| `ok` 綠 | 成功、完成 |
+| `fail` 紅 | 失敗、重試 |
+| `archive` 石板 | 封存、結束 |
+
+套好之後長這樣：
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeCSS": "filter: none !important;",
+  "themeVariables": {
+    "background": "#181818", "fontSize": "15px",
+    "primaryColor": "#191C20", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#64748B",
+    "lineColor": "#64748B", "textColor": "#E8E8E8", "titleColor": "#E8E8E8",
+    "clusterBkg": "#111827", "clusterBorder": "#334155", "edgeLabelBackground": "#131313",
+    "noteBkgColor": "#221F18", "noteBorderColor": "#F59E0B", "noteTextColor": "#FFFFFF",
+    "attributeBackgroundColorOdd": "#1B1F23", "attributeBackgroundColorEven": "#191C20",
+    "rowOdd": "#1B1F23", "rowEven": "#191C20",
+    "cScale0": "#1B1B26", "cScale1": "#1F1A23", "cScale2": "#191F1F",
+    "cScale3": "#19231F", "cScale4": "#181D25", "cScale5": "#221F18",
+    "cScale6": "#1B1B26", "cScale7": "#1F1A23", "cScale8": "#191F1F",
+    "cScale9": "#19231F", "cScale10": "#181D25", "cScale11": "#221F18"
+  },
+  "flowchart": {"curve": "stepAfter", "nodeSpacing": 40, "rankSpacing": 50, "padding": 14, "wrappingWidth": 320}
+}}%%
+flowchart TD
+    A["📥 收到請假單"]:::input --> B["主管審核"]:::step
+    B --> C{"天數超過 3 天？"}:::decide
+    C -->|"是"| D["送人事覆核"]:::handoff
+    C -->|"否"| E["核准"]:::ok
+    D --> E
+
+    classDef input   fill:#191C20,stroke:#64748B,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef step    fill:#1B1B26,stroke:#818CF8,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef agent   fill:#1F1A23,stroke:#C084FC,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef handoff fill:#181D25,stroke:#60A5FA,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef decide  fill:#221F18,stroke:#F59E0B,stroke-width:2px,stroke-dasharray:4 3,color:#FFFFFF,font-weight:bold
+    classDef check   fill:#191F1F,stroke:#2DD4BF,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef ok      fill:#19231F,stroke:#34D399,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef fail    fill:#241A19,stroke:#F87171,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+    classDef archive fill:#191C20,stroke:#94A3B8,stroke-width:2px,color:#FFFFFF,font-weight:bold,rx:10px,ry:10px
+```
+
+**三個常見的坑**：
+
+- 文字裡有中文標點、emoji、括號、冒號，一律用 `["…"]` 包起來
+- 文字開頭是 `1.` 會被當成清單而畫壞，改用 `①`
+- 圓角要寫 `rx:10px` 帶單位，不然在 iPhone、iPad 上會變直角（範本已經寫好，照貼就不會錯）
+
+### 要把圖交給別人：用 Pele 畫成檔案
+
+上面的圖是 Obsidian 在畫面上畫的，只在 Obsidian 裡看得到。要把圖放進報告、簡報，或傳給沒有 Obsidian 的人，就用 Pele（Obsidian 官方發布的開源工具）從同一份原文畫成圖片檔，配色會自動套好：
+
+```text
+node wiki/tools/pele/render.mjs 你的筆記.md 輸出.svg --png 輸出.png
+```
+
+- 筆記裡有好幾張圖，加 `--index 2` 指定第幾張
+- 每台電腦第一次用要先裝（需要 Node.js；出 PNG 另需 Chrome 或 Edge）：Mac 跑 `sh wiki/tools/pele/install.sh`，Windows 跑 `powershell -ExecutionPolicy Bypass -File wiki\tools\pele\install.ps1`
+- 畫好一定要打開圖片看一次；Pele 畫不出來的圖，就用 Obsidian 截圖或原生 Mermaid（規則 W §W.8）
 
 ## 規則怎麼長大
 
