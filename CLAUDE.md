@@ -3,7 +3,7 @@
 > 本檔給進入此 vault 的 LLM agent（Claude Code / Cowork / Codex / Cursor 等）讀。
 > 規範你在維護本 vault 時要遵守的結構、慣例、工作流程。
 > 模式來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-> Plugin release：**karpathy-wiki-pattern v1.4.6 公開版**（含 7 skills，不含 Notion 同步；Claude Code 從 `.claude/skills/` 自動載入，Cowork 用 `plugin/` 的安裝檔）
+> Plugin release：**karpathy-wiki-pattern v1.4.7 公開版**（含 7 skills，不含 Notion 同步；Claude Code 從 `.claude/skills/` 自動載入，Cowork 用 `plugin/` 的安裝檔）
 > Vault patch：**v1.13**（補齊 8 項通用規則：新增規則 X 文件屬性；規則 K v2 剪報前處理與查證、規則 O 按需讀取、規則 Q 改寫不追加等；範本移到 `40-Resources/Templates/`；內建 8 個 Obsidian 外掛）
 
 ---
@@ -30,6 +30,7 @@
 
 ## 0. 版本歷程
 
+- 2026-11-17：skills / plugin 公開版 v1.4.7 對齊維護者 v1.4.6——wiki-ingest 加 Step 0.1 規則 K v2 剪報預檢（剪報先做報告＋查證表再 ingest，被 `supersedes:` 取代的不 ingest，查無的名稱不進正文）；youtube-to-notebooklm v1.4.0（REPORT_PROMPT v1.4：10 節含全片逐段摘要與查證表；單支影片走 yt-dlp fast-path；撞名一律停）；wiki-status-promote 範例連結修正；reference 檔殘留的 `wiki/log.md`、`wiki/index.md` 改成 daily 與根目錄 `index.md`。安裝檔換成 `plugin/karpathy-wiki-pattern-v1.4.7.plugin`。Vault patch 維持 v1.13。
 - 2026-10-29：starter skills / plugin v1.4.6 修正 query 索引定位、lint 唯讀預設、ingest 維護路徑與 compile 來源追溯；Vault patch 維持 v1.11。
 
 > **v1.13**（2026-11-17）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。

@@ -38,7 +38,7 @@
    🔗 backlinks: 無
    ⚠️ 理由：內容過薄（< 200 字）+ 沒任何 backlink + Growth Signal placeholder
 
-   ⚠️ **覆蓋規則**：此 entity 在 [[wiki/maps/Wiki 索引]] 標記為 "Growth signals（待 ingest）"，
+   ⚠️ **覆蓋規則**：此 entity 在 domain 索引（`wiki/maps/<domain> 索引`）標記為 "Growth signals（待 ingest）"，
         刻意保留以提示未來 ingest，不該 deprecate。建議改：留 draft + review_by 90 天後。
 
    動作？[ENTER 改採建議：留 draft] / [d deprecate anyway] / [s skip]
@@ -89,7 +89,6 @@
 
 📁 影響檔案
   - 65 個 wiki/entities/*.md（frontmatter 改動）
-  - wiki/log.md（+1 行）
   - wiki/daily/2026/05/2026-05-02.md（補一段 §wiki-status-promote）
 
 🎯 vault 狀態變化

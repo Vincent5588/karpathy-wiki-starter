@@ -23,8 +23,8 @@
 
 更新：
 - `wiki/entities/Few-shot prompting.md`（加客服例子）
-- `wiki/index.md`（提示工程區加 3 個新 link）
-- `wiki/log.md`（追加 ingest 紀錄）
+- 根目錄 `index.md`（提示工程區加 3 個新 link、更新計數）
+- `wiki/daily/YYYY/MM/YYYY-MM-DD.md`（追加 ingest 紀錄）
 
 **Step 4 — 報告**:
 > ✅ 建了 3 個新概念頁、更新 1 個既有頁

@@ -6,8 +6,14 @@
 ***
 
 ```markdown
-***
-type: youtube_report
+---
+title: "{{影片標題}}"
+source: "{{第一支 YouTube URL}}"
+youtube_url: "{{第一支 YouTube URL}}"
+channel: "{{頻道}}"
+duration: "{{秒數}}（{{分秒}}）"
+published: "{{YYYY-MM-DD}}"
+type: youtube-report
 source_type: notebooklm
 status: draft
 youtube_urls:
@@ -28,9 +34,9 @@ generated_at: "{{YYYY-MM-DD HH:MM Taipei}}"
 humanized_at: "{{YYYY-MM-DD HH:MM Taipei}}"
 tags: [youtube, raw, pending-ingest]
 skill: youtube-to-notebooklm
-skill_version: v1
+skill_version: youtube-to-notebooklm-1.4.0
 post_processing: humanizer
-***
+---
 
 # {{第一支影片標題（多支則用 notebook 主題標題）}}
 
@@ -45,19 +51,20 @@ post_processing: humanizer
 
 ***
 
-{{Humanizer 後的 NotebookLM 報告 markdown 內容（8 節結構，照 REPORT_PROMPT.md 走，且 8.1 段 VIDEO_ID placeholder 已替換為實際 URL，AI 痕跡已移除）}}
+{{Humanizer 後的 NotebookLM 報告 markdown 內容（10 節結構，照 REPORT_PROMPT.md v1.4 走，且 8.1 段 VIDEO_ID placeholder 已替換為實際 URL、第 10 節查證表已查完不留「待查證」，AI 痕跡已移除）}}
 ```
 
 > 版本歷程：
 > - **v1**（2026-05-07 初版）：字數 2000-5000，含完整 metadata（處理清單 / NotebookLM 後續 / 測試備註）→ 太冗長
 > - **v1.1**（2026-05-07）：字數 800-1500，**完全移除尾段 metadata**（8 段結構結束就結束）→ 使用者反饋偏簡，深度不夠
 > - **v1.2**（2026-05-07）：字數 **1200-2500**，重點 **8-16** 條，延伸思考 **3-5** 條，數據 **4-6** 條，引言 **3-4** 條。**維持 v1.1 「無尾段 metadata」決策**
-> - **v1.3**（2026-05-07 寫入 REPORT_PROMPT.md / 2026-05-09 metadata 補同步，現行）：字數改 **5-tier 階梯化**（< 10 min 800-1500 / 10-30 min 1500-2500 / 30-60 min 2500-4000 / 60-120 min 4000-6000 / > 120 min 5000-8000），重點 / 延伸 / 數據 / 引言維持 v1.2，長影片靠擴展單條深度而非加條數
+> - **v1.4**（2026-10-18，現行）：REPORT_PROMPT v1.4 的 10 節；frontmatter `type` 由 `youtube_report` 改為 `youtube-report`（與 fast-path、外部對帳同一種；既有舊檔不改），補 `title`／`source`／`youtube_url`／`channel`／`duration`／`published`；撞名一律停（不再加 `(2)`）；修正被改成 `***` 的 frontmatter 分隔線與表格分隔列
+> - **v1.3**（2026-05-07 寫入 REPORT_PROMPT.md / 2026-05-09 metadata 補同步）：字數改 **5-tier 階梯化**（< 10 min 800-1500 / 10-30 min 1500-2500 / 30-60 min 2500-4000 / 60-120 min 4000-6000 / > 120 min 5000-8000），重點 / 延伸 / 數據 / 引言維持 v1.2，長影片靠擴展單條深度而非加條數
 
 ## 變數替換對照表
 
 | 變數 | 來源 | 範例 |
-|******|******|******|
+|---|---|---|
 | `{{YYYY-MM-DD-Taipei}}` | `TZ='Asia/Taipei' date "+%F"` | `2026-05-07` |
 | `{{YYYY-MM-DD HH:MM Taipei}}` | `TZ='Asia/Taipei' date "+%F %H:%M"` | `2026-05-07 14:30` |
 | `{{notebook_id}}` | step 2 `notebook_create` 回傳 | `8ee96c1a-0ea2-4bef-b68e-af41ead448d9` |
@@ -92,16 +99,15 @@ post_processing: humanizer
 ### 範例
 
 | 原影片標題 | filename |
-|*********--|*********-|
+|---|---|
 | `Claude Code + NotebookLM + Obsidian = GOD MODE` | `Claude Code + NotebookLM + Obsidian = GOD MODE.md` |
 | `🚀 ChatGPT vs Claude：誰更強？(2026 年實測)` | `🚀 ChatGPT vs Claude誰更強？(2026 年實測).md`（去除半形 `:`） |
 | `Andrej Karpathy: Software 2.0` | `Andrej Karpathy Software 2.0.md`（去除半形 `:`） |
 
 ## 衝突處理
 
-如果 `00-Inbox/{影片標題}.md` 已存在（同支影片重跑）：
+如果 `00-Inbox/{影片標題}.md` 已存在（同支影片重跑）：**停，不寫**，回報「已有：<檔名>」（2026-10-18 起，[[rule-K-raw-precheck|規則 K]] v2；原本加 `(2)`、`(3)` 的做法會讓同一支影片出現兩份報告，去重檢查會報重複）。
 
-- 加 `(2)`、`(3)`... 直到找到不衝突的檔名
-- 例：`Claude Code + NotebookLM + Obsidian = GOD MODE (2).md`
+不要覆蓋既有檔（可能是使用者手動編輯過了）。要重做就先把舊檔歸檔，再產新的。
 
-不要覆蓋既有檔（可能是使用者手動編輯過了）。
+Web Clipper 空殼來的報告，檔名改用 `<空殼檔名>_報告.md`，frontmatter 加 `supersedes: "[[<空殼檔名>]]"`（規則 K v2 §K.2）。

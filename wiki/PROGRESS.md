@@ -22,7 +22,7 @@ cssclasses: [wide]
 | Entity 總數 | **0** | 剛建立，尚無 entity |
 | Lint Score | **—** | 尚未跑過 lint |
 | Draft 比例 | **—** | — |
-| Plugin 版本 | **v1.4.6 公開版** | 7 skills（`.claude/skills/`）|
+| Plugin 版本 | **v1.4.7 公開版** | 7 skills（`.claude/skills/`）|
 | Vault patch | **v1.0** | 初始模板 |
 
 ---

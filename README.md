@@ -101,9 +101,9 @@ git commit -m "init: my wiki vault (forked from karpathy-wiki-starter v1.0)"
 **3. 外掛（都已內建）**
 
 - **Obsidian 外掛（8 個）**：Dataview、Templater、Omnisearch、Text Extractor、AI Image Analyzer、Excalidraw、File Color、Iconize 已經放在 `.obsidian/plugins/`，連結格式、附件資料夾、範本資料夾、寬版面也已預設好。第一次打開 vault 時 Obsidian 會問要不要信任作者並啟用社群外掛，選信任即可。各外掛怎麼設定見 [新手使用手冊](新手使用手冊.md) §5。
-- **Claude 技能**（`karpathy-wiki-pattern` v1.4.6 公開版，7 個技能：ingest、lint、query、repair、compile、status-promote、youtube-to-notebooklm）：
+- **Claude 技能**（`karpathy-wiki-pattern` v1.4.7 公開版，7 個技能：ingest、lint、query、repair、compile、status-promote、youtube-to-notebooklm）：
   - **Claude Code**：已內建在 `.claude/skills/`，在 vault 根目錄開 `claude` 就自動載入，不用另外安裝
-  - **Claude 對話或 Cowork**：Claude 桌面版或網頁版 → Customize › Plugins › Add › Upload plugin，選 `plugin/karpathy-wiki-pattern-v1.4.6.plugin`
+  - **Claude 對話或 Cowork**：Claude 桌面版或網頁版 → Customize › Plugins › Add › Upload plugin，選 `plugin/karpathy-wiki-pattern-v1.4.7.plugin`
   - 兩種只要擇一，不要兩邊都裝，否則同一個技能會出現兩次
 - **Mermaid 圖匯出（選用）**：想把筆記裡的 Mermaid 圖畫成 SVG／PNG 放進報告或傳給別人，每台電腦先裝一次 Pele（需要 Node.js；出 PNG 另需 Chrome 或 Edge）：macOS／Linux 跑 `sh wiki/tools/pele/install.sh`，Windows 跑 `powershell -ExecutionPolicy Bypass -File wiki\tools\pele\install.ps1`。用法見 `40-Resources/Templates/Mermaid 圖範本.md` ⑤。只在 Obsidian 裡看圖的話不用裝
 
@@ -220,5 +220,5 @@ wiki/entities/
 ## 授權 & 致謝
 
 - 架構來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-- Plugin：karpathy-wiki-pattern v1.4.6 公開版（`.claude/skills/`、`plugin/`；MIT）。公開版包含 starter 路徑與維護流程修正；範例：改成虛構的訂單系統等通用領域、移除個人 vault 名稱，並拿掉 Notion 同步
+- Plugin：karpathy-wiki-pattern v1.4.7 公開版（`.claude/skills/`、`plugin/`；MIT）。公開版包含 starter 路徑與維護流程修正、規則 K v2 剪報預檢與 YouTube 報告 v1.4；範例：改成虛構的訂單系統等通用領域、移除個人 vault 名稱，並拿掉 Notion 同步
 - 模板維護：歡迎 PR / Issue

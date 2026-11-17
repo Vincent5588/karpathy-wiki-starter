@@ -1,16 +1,22 @@
 ---
 name: youtube-to-notebooklm
 description: |
-  將一支或多支 YouTube 影片送進 NotebookLM 產生繁體中文分析報告，
-  過 humanizer 潤飾後寫進 vault 的 00-Inbox 等待 wiki-ingest 處理。
+  將 YouTube 影片產成繁體中文分析報告，過 humanizer 潤飾後寫進 vault 的
+  00-Inbox 等待 wiki-ingest 處理。單支影片優先走 yt-dlp fast-path（經驗法則 4），
+  多支跨來源綜合才送進 NotebookLM。
   當使用者貼出 YouTube URL 並說「YT 分析」「YouTube 報告」
   「這個 YT 給 NotebookLM」「ingest 這個影片」「YT analyze」時，
-  立即啟動此 Skill。報告字數依影片長度 5-tier 階梯化（800 字至 8000 字），重點 8-16 條，延伸思考 3-5 條。
-  強制繁中 + 英文專有名詞中英對照（vault 規則 F）
+  立即啟動此 Skill。報告字數依影片長度 5-tier 階梯化（800 字至 8000 字），重點 8-16 條，延伸思考 3-5 條，
+  10 節（v1.4 起含全片逐段摘要與查證表）。
+  強制繁中 + 英文專有名詞中英對照（vault 規則 J）
   + 英文 quote 加繁中翻譯（vault 規則 D）。
 ---
 
-# youtube-to-notebooklm v1.3.1 — 階梯化 + CLI 優先
+# youtube-to-notebooklm v1.4.0 — 階梯化 + CLI 優先 + 單支 fast-path + 全片逐段摘要與查證表
+
+> **v1.4.0 於 2026-10-18**（vault 規則 K v2）：報告改照 REPORT_PROMPT **v1.4**——8 節 → **10 節**（第 9 節全片逐段摘要、第 10 節查證表）。NotebookLM 路徑的查證表先列「待查證」，Step 5.5 後由 Claude 逐項查完；Web Clipper 空殼來的報告另存 `<空殼檔名>_報告.md`＋`supersedes:`（規則 K v2 §K.2，原剪報不動）。
+
+> **v1.3.2 patch 於 2026-10-09**：新增「路徑選擇」——單支影片預設走 yt-dlp fast-path（經驗法則 4），NotebookLM 路徑保留給多支跨來源綜合；Step 1 的 yt-dlp 由「可選」改為預設。
 
 > **v1.3.1 patch 於 2026-05-11**：Step 3 改用 CLI `nlm source add --youtube` 取代 MCP `source_add(source_type: url)`——MCP 對 YouTube URL 必失敗（ingest [[Live Artifacts (Cowork)]] 影片 `1nfDHwBHn88` 時兩次 MCP call 都 error: "Could not add url source"，URL public 確認可訪問，改用 CLI `--youtube` flag 立刻成功）。MCP 的 `source_type: url` 設計上不區分一般網頁 vs YouTube，CLI 的 `--youtube` flag 走專門路徑。
 >
@@ -19,12 +25,24 @@ description: |
 > 11 次測試共識：
 > - NotebookLM 8.1 URL 100% 不可信，humanizer 階段強制覆蓋（11 次都中）
 > - NotebookLM puffy 標題（「【深度分析報告】...新紀元」），humanizer 階段強制覆蓋成影片原標題
-> - 8 段結構結束就結束，**不放尾段 metadata**（處理清單 / NotebookLM 後續 / 測試備註）—— 使用者要 ingest 處理清單時手動加
+> - 報告結構結束就結束（v1.4 起 10 節），**不放尾段 metadata**（處理清單 / NotebookLM 後續 / 測試備註）—— 使用者要 ingest 處理清單時手動加
 > - **MCP source_add 對 YouTube URL 必失敗**（v1.3.1 確認）—— 預設走 CLI 路徑
+
+## 路徑選擇（v1.3.2 新增）
+
+| 情境 | 路徑 | 耗時 |
+|---|---|---|
+| **單支**，有字幕 | yt-dlp 抓字幕 → 直接產報告 | 約 2–4 分 |
+| **單支**，無字幕 | yt-dlp 抓音檔 + 本機 Whisper 轉錄（Apple Silicon 用 mlx-whisper，其他電腦用 faster-whisper 等）→ 產報告 | 約 3–5 分 |
+| **多支**跨來源綜合，或想留 notebook 續聊 | 下方 6 步驟（NotebookLM） | 5–15 分 |
+
+fast-path 的指令、`player_client` 試序與 dated 實測表，**一律查 [[heuristic-4-yt-fastpath]]**（client 會過期，本檔不存副本）。
+報告格式兩條路徑相同：REPORT_PROMPT v1.4（5-tier 字數、10 節含全片逐段摘要與查證表、規則 D／J）。本地轉錄沒有 ASR 校對，第 10 節查證表要把專有名詞逐項查完（[[heuristic-7-transcript-verification]]）。fast-path 的 frontmatter 與檔名照 `references/OUTPUT_TEMPLATE.md`，只有 `source_type` 照實改寫成 `yt-dlp-subtitle`（抓字幕）或 `yt-dlp+whisper`（本機轉錄）。
+以下 6 步驟是 **NotebookLM 路徑**。
 
 ## 為什麼存在
 
-YouTube 上有大量技術 / 商業 / 教學內容值得放進 vault 知識庫，但**手動看完一支 30 分鐘影片 + 寫摘要 + 整理重點 = 1-2 小時**。改用 NotebookLM（Google 旗下的 AI 研究工具）抓字幕 + 跨來源綜合分析 → 5-15 分鐘產出結構化繁中報告。
+YouTube 上有大量技術 / 商業 / 教學內容值得放進 vault 知識庫，但**手動看完一支 30 分鐘影片 + 寫摘要 + 整理重點 = 1-2 小時**。單支影片走 yt-dlp fast-path（2–4 分鐘）；多支跨來源綜合改用 NotebookLM（Google 旗下的 AI 研究工具）抓字幕 + 綜合分析 → 5-15 分鐘產出結構化繁中報告。
 
 這個 skill 把流程封裝起來：你貼 URL → 我跑 6 步驟 → vault 的 `raw/` 多一個待 ingest 的 markdown。之後跑 wiki-ingest 拆成 entity，知識庫就長大一點。
 
@@ -45,7 +63,7 @@ YouTube 上有大量技術 / 商業 / 教學內容值得放進 vault 知識庫�
 
 ## 標準工作流（6 步驟）
 
-依 vault CLAUDE.md 規則 E（show before write）執行。整個流程估計 5-15 分鐘，期間我會用 sleep poll 等 NotebookLM。
+依 vault CLAUDE.md 規則 E（show before write）執行。NotebookLM 路徑估計 5-15 分鐘，期間我會用 sleep poll 等 NotebookLM。
 
 ### Step 1｜URL 驗證 + 取 stub
 
@@ -54,14 +72,14 @@ YouTube 上有大量技術 / 商業 / 教學內容值得放進 vault 知識庫�
 - 確認是 `youtube.com/watch?v=...` 或 `youtu.be/...` 格式
 - 取 video ID（11 字元）
 
-**如果本機有 yt-dlp（可選預檢）**：
+**yt-dlp 預檢（預設，本機已裝）**：
 - 跑 `yt-dlp --skip-download --print "%(title)s|%(channel)s|%(duration_string)s|%(upload_date)s" <url>` 抓 metadata
 - 跑 `yt-dlp --skip-download --list-subs <url>` 確認有字幕
 - 用第一支影片標題前 30 字元做 stub
 
-**如果 yt-dlp 沒裝（常見情況，OK 跳過）**：
+**如果 yt-dlp 不可用（退路）**：
 - 直接用 video ID 當 stub
-- 影片標題、頻道、時長等 metadata **改在 step 3 之後從 `source_describe` 拿**（NotebookLM 自己會抽 YouTube metadata，比 yt-dlp 還可靠）
+- 影片標題、頻道、時長等 metadata 改在 step 3 之後從 `source_describe` 拿
 - 不必預檢字幕：source_add 完後 NotebookLM 若抓不到字幕，source_describe 會看出來（summary 會空 / 短）
 
 ### Step 2｜建 NotebookLM notebook
@@ -156,11 +174,13 @@ Skill tool: humanizer
 skill 載入後依其指引：
 1. 讀 step 5 下載的報告內容
 2. 套 29 個 AI pattern 全掃過一輪
-3. 維持 vault 規則 D（英文 quote 加繁中翻譯）跟 規則 F（英文專有名詞中英對照）
-4. 維持 8 段結構（REPORT_PROMPT 規定）
+3. 維持 vault 規則 D（英文 quote 加繁中翻譯）跟 規則 J（英文專有名詞中英對照）
+4. 維持 10 節結構（REPORT_PROMPT v1.4 規定），標題逐字 `## 1. 影片基本資訊` 到 `## 10. 查證表`
 5. 不要在 humanize 過程移除：時間戳、URL、frontmatter 欄位
 
 draft → audit → final 三輪走完，把 final 版用在 step 6。
+
+**查證（v1.4 新增，強制）**：NotebookLM 交出的第 10 節查證表「查證結果」都是 `待查證`。寫進 vault 前逐項查完（WebSearch、官方網站、yt-dlp metadata），改成 `正確`／`更正為「…」`／`查無` 並補出處；正文同步改成更正後寫法、查無的第一次出現加「（查無）」。格式照 vault 規則 K §K.3（`wiki/rules/rule-K-raw-precheck.md`）。**留下任何一格 `待查證` 就不准寫進 vault。**
 
 ### Step 6｜寫進 vault
 
@@ -177,6 +197,9 @@ draft → audit → final 三輪走完，把 final 版用在 step 6。
 - `+`、`=`、`&`、`空格` 都允許保留
 - 不加日期前綴（日期已在 frontmatter `created`/`updated`）
 - 不加 `youtube_` 前綴或 `_stub` 後綴（影片標題本身有辨識度）
+- **Web Clipper 空殼來的**：檔名 `<空殼檔名>_報告.md`，frontmatter 加 `supersedes: "[[<空殼檔名>]]"`（規則 K v2 §K.2；空殼本身不動）
+- **同名已存在就停**，回報「已有：<檔名>」——不加 `(2)`（v1.4 起；同一支影片兩份報告會被去重檢查報重複）
+- 寫進 vault 前自己對一次格式：10 節標題逐字、第 10 節查證表的表頭與結果寫法（規則 K §K.3）、沒有任何 `待查證`；對不上就改完再寫
 
 **Auto Embed plugin 整合**（target vault 已裝）：報告 header 後**必須**加一行 image syntax 觸發內嵌播放器：
 
@@ -199,9 +222,11 @@ sed -i '' "s|watch?v=VIDEO_ID|watch?v={actual_video_id}|g" /tmp/yt_report_*.md
 > - 規則 A：00-Inbox/ 內容**唯讀**，但 LLM 新寫入後使用者批准就會被 ingest 路由
 > - vault v1.3.12 起已停寫 `wiki/log.md`，改用 `wiki/daily/YYYY/MM/YYYY-MM-DD.md`
 
-frontmatter 必須包含：
-- `type: youtube_report`
+frontmatter 必須包含（v1.4 起與 fast-path、外部對帳同一種格式；欄位全文見 OUTPUT_TEMPLATE）：
+- `type: youtube-report`（v1.4 前是 `youtube_report`，既有舊檔不改）
+- `title`／`source`／`youtube_url`／`channel`／`duration`／`published`／`generated_at`
 - `source_type: notebooklm`
+- `skill_version: youtube-to-notebooklm-1.4.0`
 - `status: draft`
 - `youtube_urls: [...]`
 - `notebook_id: <NotebookLM ID>`
@@ -235,7 +260,7 @@ frontmatter 必須包含：
 ### 報告語言與格式
 
 - **全文繁體中文**（vault 是繁中環境）
-- **英文專有名詞中英對照**：第一次出現英文用語時加 `English（中文說明）` 或 `中文（English）`（vault 規則 F）
+- **英文專有名詞中英對照**：第一次出現英文用語時加 `English（中文說明）` 或 `中文（English）`（vault 規則 J）
 - **英文 quote 必加繁中翻譯**：原文 quote 下方緊接著繁中 quote（vault 規則 D）
 - 純技術名詞（命令、設備型號、廠商名）不必中譯
 
@@ -257,7 +282,7 @@ frontmatter 必須包含：
 | 問題 | 處置 |
 |------|------|
 | **MCP `source_add(source_type: "url")` 對 YouTube URL 失敗**（v1.3.1 確認）| **預設走 CLI `nlm source add --youtube`**——MCP 路徑對 YouTube URL 必 error: "Could not add url source"，不是 auth 問題。Step 3 v1.3.1 已改用 CLI 優先 |
-| 影片無字幕 | 報告會空。Step 1 用 yt-dlp 先檢查 `--list-subs` 是否有 `auto-generated` 或人工字幕 |
+| 影片無字幕 | NotebookLM 報告會空。Step 1 用 yt-dlp 檢查 `--list-subs`；無字幕時改走 fast-path 的本機 Whisper 轉錄，不要硬丟 NotebookLM |
 | 影片設成 private / 已下架 | source_add 會 fail。把 fail 的 URL 跳過、其他繼續 |
 | Auth 過期 | `nlm login`，不要自動重連。先用 `nlm login --check` 驗證 |
 | 報告超過 20 分鐘還沒好 | 跳出 poll loop、告訴使用者 notebook ID，請他到 web UI 看狀態 |
@@ -266,14 +291,14 @@ frontmatter 必須包含：
 
 ## 事後檢查（self-check）
 
-寫完 raw/ 檔後跑：
+寫完報告後跑：
 
 ```bash
-# 確認檔案有寫進去
-ls -la 00-Inbox/$(TZ='Asia/Taipei' date +%F)_youtube_*.md
+# 確認檔案有寫進去（檔名就是影片標題）
+ls -la "00-Inbox/<影片標題>.md"
 
-# 確認 log 有更新
-tail -3 wiki/log.md
+# 確認今天的 daily 有記錄
+tail -5 "wiki/daily/$(date +%Y/%m/%F).md"
 ```
 
 如果報告內容明顯品質有問題（< 1000 字 / 結構不完整 / 沒按 prompt 走）→ 標記 frontmatter 加 `quality: poor`，daily log 記一筆「此次 NotebookLM 輸出品質不佳，原因 XX」。累積觀察會餵回去調 REPORT_PROMPT.md。

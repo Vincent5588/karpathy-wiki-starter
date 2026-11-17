@@ -81,7 +81,7 @@ Once confirmed:
 2. **Move files in batches grouped by domain.** Print "moving 11 files into `finance/`..." then proceed. Smaller blast radius if anything goes wrong.
 3. **For files that needed frontmatter:** edit-in-place to add `domain` / `type` / `status: stable` (since these are pre-existing, mature entities) BEFORE moving.
 4. **Do NOT touch `[[wiki links]]` anywhere.** Obsidian resolves by basename — moves are link-safe.
-5. **Append a migration entry to `wiki/log.md`:**
+5. **Add a migration entry to today's daily** `wiki/daily/YYYY/MM/YYYY-MM-DD.md`:
    ```
    YYYY-MM-DD HH:MM  migration v1.2.1→v1.3.0  moved=NN  classified=NN  unsorted=NN
    ```

@@ -11,7 +11,9 @@ description: |
 allowed-tools: [Read, Write, Edit, Glob, Grep]
 ---
 
-# wiki-ingest (starter v1.4.6)
+# wiki-ingest (starter v1.4.7)
+
+> **v1.4.7（2026-11-17）**：加 Step 0.1 規則 K v2 預檢——Web Clipper 的 YouTube／GitHub 剪報、英文或被截斷的網頁先做報告（附查證表）再 ingest；被 `supersedes:` 取代的原剪報不 ingest；查證表「查無」的名稱不寫進 entity 正文。對齊維護者 wiki-ingest v1.3.4–v1.3.5 的通用部分。
 
 Extract atomic concepts from raw, messy input and write them as well-formed wiki entities — **automatically classified into a domain/type folder hierarchy** so `entities/` never becomes a flat dumping ground.
 
@@ -31,7 +33,7 @@ Extract atomic concepts from raw, messy input and write them as well-formed wiki
 
 - One `.md` file per atomic entity at `wiki/entities/<domain>/<type>/<slug>.md`
 - Each file follows `references/ENTITY_TEMPLATE.md`
-- Optional ingest log appended to `wiki/daily/YYYY/MM/YYYY-MM-DD.md`
+- An entry in today's daily `wiki/daily/YYYY/MM/YYYY-MM-DD.md` (step 6; required by `CLAUDE.md` §3.1 step 7)
 
 ## Pipeline
 
@@ -46,6 +48,19 @@ Before writing, cite `Wiki操作文件/Wiki_維護觸發規則.md` §1 and show 
 5. Optional existing TODO, terminology and dashboard pages when relevant.
 
 Wait for approval unless this scope is already authorized. Do not require or create a personal `Wiki_主目錄` or ingest-history hub. Do not invent missing maintenance pages; report the gap and propose a solution. For `atomize:false`, create one entity using a standard type, with the wrapper required by CLAUDE.md.
+
+### Step 0.1: Rule K v2 precheck (before reading for entities)
+
+Rule: `wiki/rules/rule-K-raw-precheck.md` (vault `CLAUDE.md` §10 規則 K). Read the raw's frontmatter **and full text** — the language ratio and truncation often only show further down — then:
+
+| 情況 | 動作 |
+|---|---|
+| 另一份檔的 `supersedes:` 指到這份 raw | **不 ingest**；照規則 K §K.4 歸檔 |
+| `pending_action: youtube-skill`、`github-skill`，或英文／被截斷的網頁剪報、裸網址 | **不從原剪報抽 entity**——先照規則 K §K.2 產報告／評估（附 §K.3 查證表，另存新檔、`supersedes:` 指回原剪報；YouTube 用 youtube-to-notebooklm 的報告格式），再 ingest 產出檔；GitHub 評估不 ingest，只落地到 `40-Resources/GitHub/` |
+| 網址已出現在 `40-Resources/` 或既有 entity 的 `source` | 不重做，回報「已收過：<既有檔>」並提案歸檔原剪報 |
+| 繁中且完整 | 往下走 Mode A |
+
+🔴 **查證表的用法**：ingest 前處理產出時，entity 正文只用查證表 `正確` 或 `更正` 後的名稱；**`查無` 的名稱不寫進正文**，只放 `## 待解` 並標「查無」。使用者明確說「不要前處理、直接抽」時可跳過前處理，**查證不豁免**。
 
 ### Mode A — Standard ingest (default)
 
