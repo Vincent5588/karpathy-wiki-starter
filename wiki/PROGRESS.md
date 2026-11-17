@@ -1,14 +1,17 @@
 ---
-title: "Wiki PROGRESS — 新 Session 熱身"
+title: "Wiki PROGRESS — 狀態面板"
+type: artifact
+status: active
 tags: ["progress", "session-warmup"]
+created: YYYY-MM-DD
 updated: YYYY-MM-DD
 cssclasses: [wide]
 ---
 
-# ⚡ Wiki PROGRESS — 新 Session 熱身
+# ⚡ Wiki PROGRESS — 狀態面板
 
-> **每次開新 Claude session 第一步讀此檔**。30 秒掌握當前狀態。
-> 完整待辦 → `wiki/TODO.md`｜詳細異動 → `wiki/daily/`
+> **接續上次工作、查目前狀態時讀此檔**（v1.13 起不是每次開場必讀，見 `CLAUDE.md` ⚡ 按需路由）。30 秒掌握當前狀態。
+> 完整待辦 → `Wiki操作文件/WIKI_TODO.md`｜詳細異動 → `wiki/daily/`
 
 ---
 
@@ -19,7 +22,7 @@ cssclasses: [wide]
 | Entity 總數 | **0** | 剛建立，尚無 entity |
 | Lint Score | **—** | 尚未跑過 lint |
 | Draft 比例 | **—** | — |
-| Plugin 版本 | **v1.4.5 公開版** | 7 skills（`.claude/skills/`）|
+| Plugin 版本 | **v1.4.6 公開版** | 7 skills（`.claude/skills/`）|
 | Vault patch | **v1.0** | 初始模板 |
 
 ---
@@ -40,14 +43,14 @@ cssclasses: [wide]
 
 ## 📝 上次 Session 摘要
 
-**YYYY-MM-DD**（初始建立）
+**2026-10-29**（starter skills 修正）
 
 - 從 karpathy-wiki-starter 模板建立 vault
-- 尚未 ingest 任何內容
+- 修正 query、lint、ingest、compile；同步 Cowork v1.4.6 安裝包。尚未 ingest 使用者內容。
 
 ---
 
 ## 📋 維護規則
 
-- **開 session**：讀此檔（30 秒），確認健康狀態 + 當前 top 優先
-- **結束 session**：更新「上次 Session 摘要」（1-3 行 bullet）+ 視需要調整 Top 5 排序
+- **接續工作時**：讀此檔（30 秒），確認健康狀態 + 當前 top 優先
+- **結束 session**：這次確實改變了 vault 狀態或進度時，更新「上次 Session 摘要」（1-3 行 bullet）+ 視需要調整 Top 5 排序

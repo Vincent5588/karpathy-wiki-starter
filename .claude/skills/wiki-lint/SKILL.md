@@ -28,14 +28,14 @@ User says: 「巡 wiki」「lint wiki」「健康度」「健康度檢查」「c
 
 ### 1. Locate the wiki/ directory
 
-`Glob wiki/entities/*.md` and `Glob wiki/maps/*.md`. If no entities found, report and exit.
+Recursively scan `wiki/entities/**/*.md` and `wiki/maps/**/*.md` from the selected vault root (Python: `Path.rglob("*.md")`). If no entities are found, report an empty wiki and exit; do not invent a health score.
 
 ### 2. Run the lint script
 
 Execute `lint.py` (in same dir as this SKILL.md) via Bash. Use `${CLAUDE_PLUGIN_ROOT}` if available, otherwise the script will be at the same dir as this SKILL.md:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/wiki-lint/lint.py /path/to/vault/wiki
+python3 "<resolved-skill-directory>/lint.py" "/path/to/vault/wiki"
 ```
 
 The script outputs JSON (v1.2):
@@ -176,11 +176,11 @@ Choose:
 5. **No changes** (just keep report)
 ```
 
-### 7. Append to wiki/log.md
+### 7. Optional persistence — only with authorization
 
-```
-| YYYY-MM-DD | Lint | - | - | Health NN/100. M orphans / N missing / G god nodes / I inferred-heavy. Awaiting user approval. |
-```
+Default: return JSON in memory/stdout and deliver the report in chat. Do not write a report, log, health monitor or PROGRESS file, and never apply repairs.
+
+If the user explicitly requests saved results (or has already approved that scope), first show the paths to update, then follow the vault's maintenance matrix. In this starter, saved runs update `wiki/reports/LINT/YYYY/MM/LINT_<TS>.json`, the daily log, `wiki/PROGRESS.md` and `Wiki操作文件/Wiki_健康度監控.md`. The script only prints JSON; the agent must save it explicitly. Do not claim that lint.py writes reports automatically.
 
 ## Rules (strict)
 

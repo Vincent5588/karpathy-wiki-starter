@@ -10,12 +10,14 @@ Mode B (backfill) does NOT trigger routing — there's no raw file involved.
 
 ## Two destinations
 
-Every raw file ends up in exactly one of these two places:
+Only route sources in the inbox after approval. Existing PARA files stay in place; URLs and pasted text are not moved. Personal longform may remain in the inbox under CLAUDE.md. An explicit skip is valid.
+
+For eligible inbox files, offer these destinations:
 
 1. **A specific PARA path** — when the content has a clear home (project, area, or resource).
-2. **`raw/09-ARCHIVE/YYYY-MM/`** — when the user opts out of PARA classification, or the content has no clear PARA fit.
+2. **`50-Archive/YYYY-MM/`** — when the user opts out of PARA classification, or the content has no clear PARA fit.
 
-`raw/` itself is treated as an inbox: nothing should remain at the `raw/` root after ingest finishes.
+`00-Inbox/` itself is treated as an inbox: nothing should remain at the `00-Inbox/` root after ingest finishes.
 
 ## Algorithm
 
@@ -33,12 +35,12 @@ Before proposing anything, scan one level deep into each PARA tier the user has:
 30-Areas/
   財務/
   Claude-Workflow/
-40-Resources/
+40-Re參考資料/
   PDF-規範/
   文章/
 50-Archive/
   ...
-raw/
+00-Inbox/
   09-ARCHIVE/
     2026-04/
     2026-03/
@@ -56,14 +58,14 @@ Use both signals to decide where the raw file belongs:
 
 Try to fit into existing PARA subfolders, in this priority order:
 
-1. **Project match** — does the content reference an active project that already has a `20-Projects/<name>/` folder? → Propose `20-Projects/<name>/sources/<filename>`.
-2. **Area match** — is this an ongoing-responsibility topic with an existing `30-Areas/<name>/`? → Propose `30-Areas/<name>/sources/<filename>`.
-3. **Resource match** — is this reference material for an existing `40-Resources/<topic>/`? → Propose `40-Resources/<topic>/<filename>`.
+1. **Project match** — does the content reference an active project that already has a `20-Projects/<name>/` folder? → Propose `20-Projects/<name>/<topic>/<filename>`.
+2. **Area match** — is this an ongoing-responsibility topic with an existing `30-Areas/<name>/`? → Propose `30-Areas/<name>/<topic>/<filename>`.
+3. **Resource match** — is this reference material for an existing `40-Re參考資料/<topic>/`? → Propose `40-Re參考資料/<topic>/<filename>`.
 4. **Note match** — is this a meeting note, daily log, or fleeting note that fits an existing `10-Notes/<subtype>/`? → Propose `10-Notes/<subtype>/<filename>`.
 
 If a match is found → that's proposal (1).
 
-### Step 4 — When no existing folder fits → coin one (per user setting Q3=A)
+### Step 4 — When no existing folder fits → propose a new subfolder
 
 If no existing PARA subfolder fits cleanly:
 
@@ -81,7 +83,7 @@ The user can still reject this in their reply — they're not committed to creat
 Always offer the no-PARA-decision exit:
 
 ```
-raw/09-ARCHIVE/YYYY-MM/<filename>
+50-Archive/YYYY-MM/<filename>
 ```
 
 Where `YYYY-MM` is derived from the raw file's date (frontmatter date if present, else file mtime, else today).
@@ -91,13 +93,13 @@ Where `YYYY-MM` is derived from the raw file's date (frontmatter date if present
 Format:
 
 ```
-RAW: raw/2026-04-27-meeting.md
+RAW: 00-Inbox/2026-04-27-meeting.md
 Entities extracted: 3 (all → finance/)
 
 Suggested destinations:
-  (1) 20-Projects/2026-Q1-財務稽核/sources/2026-04-27-meeting.md
+  (1) 20-Projects/2026-Q1-財務稽核/參考資料/2026-04-27-meeting.md
       reason: extracted entities live in finance/, project name "財務稽核" appears in content header
-  (2) raw/09-ARCHIVE/2026-04/2026-04-27-meeting.md
+  (2) 50-Archive/2026-04/2026-04-27-meeting.md
       reason: archive fallback
 
 Reply: 1 / 2 / archive / <your-own-path>
@@ -106,13 +108,13 @@ Reply: 1 / 2 / archive / <your-own-path>
 When proposal (1) requires creating a new folder, mark it explicitly:
 
 ```
-RAW: raw/2026-04-28-orders-spec.md
+RAW: 00-Inbox/2026-04-28-orders-spec.md
 Entities extracted: 5 (all → orders/)
 
 Suggested destinations:
-  (1) 30-Areas/訂單系統-運維/sources/2026-04-28-orders-spec.md   ← (create new folder)
+  (1) 30-Areas/訂單系統-運維/參考資料/2026-04-28-orders-spec.md   ← (create new folder)
       reason: no existing PARA folder for order-system ongoing work; entities are orders/system
-  (2) raw/09-ARCHIVE/2026-04/2026-04-28-orders-spec.md
+  (2) 50-Archive/2026-04/2026-04-28-orders-spec.md
       reason: archive fallback
 
 Reply: 1 / 2 / archive / <your-own-path>
@@ -125,9 +127,9 @@ Accept these reply forms:
 | Reply | Action |
 |---|---|
 | `1` / `go` / `accept` / `好` | Use proposal (1). Create new folder if marked. |
-| `2` / `archive` / `歸檔` | Move to `raw/09-ARCHIVE/YYYY-MM/`. |
+| `2` / `archive` / `歸檔` | Move to `50-Archive/YYYY-MM/`. |
 | `<any path string>` | Use that exact path as the destination. Create folders as needed. |
-| `skip` / `leave` | Don't move the raw file. Log a warning so the user knows raw/ root has leftovers. |
+| `skip` / `leave` | Don't move the raw file. Log a warning so the user knows 00-Inbox/ root has leftovers. |
 
 When in doubt about the reply, ask once for clarification rather than guessing.
 
@@ -135,11 +137,11 @@ When in doubt about the reply, ask once for clarification rather than guessing.
 
 1. Create destination folder if it doesn't exist.
 2. Move file (preserve original filename).
-3. If a file with the same name already exists at destination → append `-2`, `-3`, etc. before the extension. Do NOT silently overwrite.
+3. If a file with the same name already exists at destination → stop and ask for a different destination or skip. Do NOT rename or overwrite the source.
 
 ### Step 9 — Update `sources:` in every affected entity
 
-Critical step — without this, the wiki entities will have broken `sources:` links.
+Critical step — without this, the wiki entities will have broken `sources:` links. Also update source paths in body citations, map provenance and active index references; verify old active references are gone. Never rewrite past daily logs.
 
 For every entity written from this raw file (you tracked these in Mode A step 5):
 
@@ -152,12 +154,12 @@ Example:
 ```yaml
 # before
 sources:
-  - raw/2026-04-27-meeting.md
+  - 00-Inbox/2026-04-27-meeting.md
   - https://example.com/spec
 
 # after
 sources:
-  - 20-Projects/2026-Q1-財務稽核/sources/2026-04-27-meeting.md
+  - 20-Projects/2026-Q1-財務稽核/參考資料/2026-04-27-meeting.md
   - https://example.com/spec
 ```
 
@@ -165,9 +167,9 @@ Do this for ALL entities pointing at this raw, not just the ones created in this
 
 ### Step 10 — Log the routing
 
-Append to `wiki/log.md`:
+Append to `wiki/daily/YYYY/MM/YYYY-MM-DD.md`:
 ```
-YYYY-MM-DD HH:MM  route  raw/2026-04-27-meeting.md → 20-Projects/2026-Q1-財務稽核/sources/  (3 entities updated)
+YYYY-MM-DD HH:MM  route  00-Inbox/2026-04-27-meeting.md → 20-Projects/2026-Q1-財務稽核/參考資料/  (3 entities updated)
 ```
 
 ## Multi-file ingest
@@ -181,8 +183,8 @@ If the user ingests several raw files in one go:
 ## Anti-patterns (don't do these)
 
 - ❌ **Silently moving a raw file to PARA** without asking. Routing is always user-confirmed (except when their reply was already collected).
-- ❌ **Dropping the raw file in `raw/09-ARCHIVE/` root** instead of `YYYY-MM/`. Always include the year-month subfolder.
-- ❌ **Leaving raw at `raw/` root after ingest finishes**. Either move it (PARA or archive), or explicitly log "user said skip — raw still at root".
+- ❌ **Dropping the raw file in `50-Archive/` root** instead of `YYYY-MM/`. Always include the year-month subfolder.
+- ❌ **Leaving raw at `00-Inbox/` root after ingest finishes**. Either move it (PARA or archive), or explicitly log "user said skip — raw still at root".
 - ❌ **Forgetting to update `sources:`**. Broken citations are silent failures — the entity looks fine but its provenance link is dead.
 - ❌ **Renaming the raw file during the move**. Keep the basename. (Same reasoning as wiki entities — basenames are stable identifiers.)
 - ❌ **Auto-creating top-level PARA folders** like `20-Projects/`. Only create *subfolders* under tiers the user already has. If `20-Projects/` doesn't exist, use the archive fallback and ask the user to set up PARA properly.
@@ -191,42 +193,42 @@ If the user ingests several raw files in one go:
 
 ### Example 1 — Clear project match
 ```
-RAW: raw/2026-04-27-q1-audit-meeting.md
+RAW: 00-Inbox/2026-04-27-q1-audit-meeting.md
 content mentions "Q1 稽核專案" repeatedly, action items for the team
 
 Existing: 20-Projects/2026-Q1-財務稽核/
 
-Proposal (1): 20-Projects/2026-Q1-財務稽核/sources/2026-04-27-q1-audit-meeting.md
+Proposal (1): 20-Projects/2026-Q1-財務稽核/參考資料/2026-04-27-q1-audit-meeting.md
 ```
 
 ### Example 2 — Ongoing area, new subfolder needed
 ```
-RAW: raw/2026-04-28-orders-architecture.md
+RAW: 00-Inbox/2026-04-28-orders-architecture.md
 content describes order system internals, ongoing reference material
 
 Existing: 30-Areas/財務/, 30-Areas/Claude-Workflow/  (no 訂單系統)
 
-Proposal (1): 30-Areas/訂單系統-運維/sources/2026-04-28-orders-architecture.md  (create new folder)
+Proposal (1): 30-Areas/訂單系統-運維/參考資料/2026-04-28-orders-architecture.md  (create new folder)
   — naming follows sibling style "中文-中文"
 ```
 
 ### Example 3 — Genuine archive case
 ```
-RAW: raw/2026-04-25-misc-thoughts.md
+RAW: 00-Inbox/2026-04-25-misc-thoughts.md
 content is a brain-dump of unrelated ideas, no project or area fit
 
 Proposal (1): 10-Notes/daily/2026-04-25-misc-thoughts.md
-Proposal (2): raw/09-ARCHIVE/2026-04/2026-04-25-misc-thoughts.md  (likely the right call)
+Proposal (2): 50-Archive/2026-04/2026-04-25-misc-thoughts.md  (likely the right call)
 ```
 
 ### Example 4 — Multiple entity domains in one raw
 ```
-RAW: raw/2026-04-26-cross-team-sync.md
+RAW: 00-Inbox/2026-04-26-cross-team-sync.md
 Entities extracted: 6 — 4 went to finance/, 2 went to claude/
 
-Proposal (1): 30-Areas/財務/sources/2026-04-26-cross-team-sync.md
+Proposal (1): 30-Areas/財務/參考資料/2026-04-26-cross-team-sync.md
   reason: dominant entity domain is finance/ (4 of 6); claude/ entities are tangential
-Proposal (2): raw/09-ARCHIVE/2026-04/2026-04-26-cross-team-sync.md
+Proposal (2): 50-Archive/2026-04/2026-04-26-cross-team-sync.md
 
 (Don't try to split a raw file across two PARA folders — pick the dominant home.)
 ```

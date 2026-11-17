@@ -3,97 +3,59 @@ name: wiki-ingest
 description: |
   Extract atomic entities from raw notes and write them into a hierarchical
   wiki/entities/[domain]/[type]/ structure. Use when the user says
-  「ingest」「process raw」「extract entities」, or drops new content into raw/.
+  「ingest」「process raw」「extract entities」, or requests processing content in 00-Inbox/.
   Also handles backfill of existing flat entities.
 
   v1.3: entity 自動推論 domain/type 落到資料夾；raw 檔 ingest 完搬去
-  PARA 子路徑或 raw/09-ARCHIVE/YYYY-MM/，並改寫所有 entity 的 sources:。
+  PARA 子路徑或 50-Archive/YYYY-MM/，並改寫所有 entity 的 sources:。
 allowed-tools: [Read, Write, Edit, Glob, Grep]
 ---
 
-# wiki-ingest (v1.3.3 — staging)
+# wiki-ingest (starter v1.4.6)
 
 Extract atomic concepts from raw, messy input and write them as well-formed wiki entities — **automatically classified into a domain/type folder hierarchy** so `entities/` never becomes a flat dumping ground.
 
-## What changed in v1.3.3 (staging — pending plugin v1.4.5 release)
+## Starter conventions
 
-**Step 0 prerequisite added** for vault Rule P (Cite-or-Die Cascade Citation).
-
-Before any vault write, LLM must explicitly cite the cascade plan from `[[Wiki_維護觸發規則]]` §1 in chat. This prevents the LLM-skips-cascade-and-nobody-notices failure mode that triggered Rule P codification (2026-05-12 same-day double miss: Hooks ingest skipped 4 cascade points; Scheduled Tasks augmentation skipped Wiki_主目錄).
-
-→ See "Step 0: Rule P cite-or-die" added at the top of the Pipeline section below.
-
-## What changed in v1.3.2
-
-Two patches on top of v1.3.0:
-
-1. **`wiki/index.md` is updated as part of every ingest** (was unwritten before — see step 7 below). Header counters (entity count, domain list, last-updated) and category lists both get bumped.
-
-2. **`wiki-lint` (the sister skill) now detects cross-domain basename collisions.** If two entities under different `<domain>/<type>/` end up with the same basename, `[[X]]` becomes ambiguous. Lint surfaces these — `wiki-ingest` step 4 (collision check) was already supposed to prevent this, but lint is a backstop.
-
-## What changed in v1.3.0
-
-Three things:
-
-1. **Entities are no longer flat.** Every entity is routed to `wiki/entities/<domain>/<type>/<entity-name>.md`, where `<domain>` and `<type>` are inferred from content — open vocabulary, not a fixed enum.
-
-2. **Raw files are routed too.** After ingest, the original raw file is moved out of `raw/` into either a specific PARA folder (`20-Projects/<project>/sources/`, `30-Areas/<area>/sources/`, etc.) or the archive fallback `raw/09-ARCHIVE/YYYY-MM/`. The `sources:` frontmatter in every affected entity is updated to point to the new path.
-
-3. **Backfill of existing flat entities** is supported as Mode B (one-time migration; see below).
+- `00-Inbox/` is the source inbox. Accept an explicitly supplied legacy `raw/` path, but do not create a second inbox.
+- Resolve the index using the wiki-query rule: inspect `wiki/index.md` and root `index.md`; use the sole existing file, follow an explicit redirect, or ask when ambiguous/missing. This starter ships root `index.md`.
+- Read the vault's `CLAUDE.md` and `Wiki操作文件/Wiki_維護觸發規則.md` before proposing writes. Follow its type vocabulary (concept/process/system/pattern/rule/artifact/role/person) and atomize precheck; do not override it with generic examples below.
+- Keep source content and basenames unchanged. Existing PARA sources are read-only and stay in place unless the user explicitly approves moving them.
 
 ## Inputs
 
-- One or more files in `raw/` (or content the user pastes into the chat)
+- One or more files in `00-Inbox/` (or content the user pastes into the chat)
 - Existing `wiki/entities/` tree (used to keep taxonomy consistent — reuse existing domain/type folder names whenever they fit)
 
 ## Outputs
 
 - One `.md` file per atomic entity at `wiki/entities/<domain>/<type>/<slug>.md`
 - Each file follows `references/ENTITY_TEMPLATE.md`
-- Optional ingest log appended to `wiki/log.md`
+- Optional ingest log appended to `wiki/daily/YYYY/MM/YYYY-MM-DD.md`
 
 ## Pipeline
 
-### Step 0: Rule P Cite-or-Die (v1.3.3 — MUST DO FIRST)
+### Step 0: Show the starter maintenance plan
 
-**Before reading any raw or writing any file**, LLM must output the following in chat:
+Before writing, cite `Wiki操作文件/Wiki_維護觸發規則.md` §1 and show the actual paths affected:
 
-```
-依 [[Wiki_維護觸發規則]] §1，本次「ingest <raw 名稱>」將 cascade：
- ① wiki/entities/<domain>/<type>/<X>.md（強制 — 新建本體或 heuristic 2 補既有）
- ② wiki/daily/YYYY/MM/YYYY-MM-DD.md（強制 — daily log）
- ③ Wiki_主目錄「📥 最近 ingest 紀錄」+「📅 最後更新」+ domain 計數 +
-    entity 總數（強制 × 4，補既有時計數不變只更前 2）
- ④ wiki/最新資料歷史/YYYY/YYYY-MM.md（強制 — ingest history hub；跨月時 LLM 自動建新月檔）
- ⑤ Wiki_儀表板 frontmatter `updated:` + 今日 H3（強制）
- ⑥ Wiki_健康度監控 frontmatter `updated:`（強制）
- ⑦ Wiki_專有名詞對照表（建議 — 若 entity 含未收錄的英文專有名詞）
- ⑧ WIKI_TODO（建議 — 衍生待辦）
- ⑨ PARA routing raw（強制 — 提案目的地 + 等批准 + 搬檔）
+1. New or updated entities; any required map.
+2. The resolved index: links, domain entries, counts and last-updated date.
+3. `wiki/daily/YYYY/MM/YYYY-MM-DD.md` and session summary in `wiki/PROGRESS.md`.
+4. Proposed inbox routing and all affected `sources:` references, only after approval.
+5. Optional existing TODO, terminology and dashboard pages when relevant.
 
- 自我檢查（ingest 完跑）：
-   find wiki/entities -name '*.md' | wc -l           # entity 總數
-   grep -c "$(date +%F)" Wiki_主目錄.md                # 主目錄今日提及
-   grep -l "updated: $(date +%F)" Wiki操作文件/Wiki_*.md  # 監控檔 frontmatter bump
-```
-
-**為什麼**：vault [[CLAUDE]] §⚡ + 規則 P 規定。LLM 跳過 Step 0 → 違反 [[rule-P-cascade-citation|規則 P]] → 違反 [[Wiki_維護觸發規則]] §10「執行動作前 chat 自述要 cascade 哪些檔」。
-
-**例外**：若使用者在同 session 明確說「直接做不必 cite」/「直接改」，可 skip Step 0。否則一律 cite。
-
-**heuristic 2 變體**：若 Discovery 發現要 ingest 的主題有既有 stable entity 重疊 ≥ 70% → 改成「補既有」cite 格式（cascade 項目相同，只是 ① row 寫「補既有 [[X]]，補 source + 內容 + 規則 H 版本歷程」，計數不變）。
-
----
+Wait for approval unless this scope is already authorized. Do not require or create a personal `Wiki_主目錄` or ingest-history hub. Do not invent missing maintenance pages; report the gap and propose a solution. For `atomize:false`, create one entity using a standard type, with the wrapper required by CLAUDE.md.
 
 ### Mode A — Standard ingest (default)
 
 For each chunk of raw input:
 
-1. **Identify atomic entities.** One concept = one entity. Split aggressively. If a heading has 3 sub-concepts that could each stand alone, that's 3 entities, not 1.
+1. **Identify entities after the atomize precheck.** For atomic input, use one reusable concept per entity; preserve an approved atomize:false source as one entity.
 
 2. **For each entity, decide `domain` and `type` BEFORE writing:**
 
-   a. **Read `references/ORGANIZATION.md`** for the inference rules (open vocabulary, kebab-case, reuse-first).
+   a. **Read `references/ORGANIZATION.md`** for the inference rules (kebab-case, reuse-first; vault standard types take precedence).
 
    b. **List existing folders** under `wiki/entities/` to see the current taxonomy. Example:
       ```
@@ -129,12 +91,12 @@ For each chunk of raw input:
    ---
    ```
 
-6. **Append a one-line entry to `wiki/log.md`:**
+6. **Append an entry to `wiki/daily/YYYY/MM/YYYY-MM-DD.md`:**
    ```
    YYYY-MM-DD HH:MM  ingest  +  finance/process/年度結算流程.md  (from raw/2026-04-27-meeting.md)
    ```
 
-7. **Update `wiki/index.md`** (v1.3.2 — was implicit, now explicit):
+7. **Update the resolved index** (v1.3.2 — was implicit, now explicit):
 
    a. **Add the new entity links** under the appropriate H3 category section. If no fitting category exists, add a new H3 (or new H2 for a brand-new domain).
 
@@ -159,9 +121,9 @@ For each chunk of raw input:
 For each raw file you just processed:
 
 9. **Decide where the raw file goes.** Read `references/PARA_ROUTING.md` and follow its algorithm:
-   a. List existing PARA structure (`10-Notes/`, `20-Projects/`, `30-Areas/`, `40-Resources/`, `50-Archive/`, `raw/09-ARCHIVE/`)
+   a. List existing PARA structure (`10-Notes/`, `20-Projects/`, `30-Areas/`, `40-Resources/`, `50-Archive/`)
    b. Form a primary proposal (reuse-first; coin a new subfolder if needed — see Q3=A in PARA_ROUTING.md)
-   c. Always offer the archive fallback: `raw/09-ARCHIVE/YYYY-MM/<filename>`
+   c. Always offer the archive fallback: `50-Archive/YYYY-MM/<filename>`
    d. Present both proposals to the user, wait for their reply (`1` / `2` / `archive` / `<custom path>` / `skip`)
 
 10. **Move the raw file** to the chosen destination. Create folders as needed. Never silently overwrite.
@@ -170,7 +132,7 @@ For each raw file you just processed:
 
 12. **Log the routing:**
     ```
-    YYYY-MM-DD HH:MM  route  raw/2026-04-27-meeting.md → 20-Projects/2026-Q1-財務稽核/sources/  (3 entities updated)
+    YYYY-MM-DD HH:MM  route  raw/2026-04-27-meeting.md → 20-Projects/2026-Q1-財務稽核/參考資料/  (3 entities updated)
     ```
 
 ### Mode B — Backfill (one-time, on user request)
@@ -200,7 +162,7 @@ Follow `references/MIGRATION.md` step by step. Summary:
 
 - **`sources:` integrity.** Whenever a raw file moves (steps 9-10 above), every entity that cites it must be updated in the same operation. A broken `sources:` link is silent rot — the entity looks fine but its provenance is gone.
 
-- **`raw/` root is an inbox.** After ingest finishes, no `.md` files should remain at `raw/` root. Each one is either routed to PARA, sent to `raw/09-ARCHIVE/YYYY-MM/`, or explicitly logged as "user said skip".
+- **`00-Inbox/` is the inbox.** Route only approved source files; personal longform and explicit skips may remain. Each one is either routed to PARA, sent to `50-Archive/YYYY-MM/`, or explicitly logged as "user said skip".
 
 ## After ingest
 
@@ -217,4 +179,3 @@ Tell the user:
 - `references/ORGANIZATION.md` — domain/type inference rules, slug normalization, taxonomy hygiene
 - `references/PARA_ROUTING.md` — where raw source files go after ingest (PARA reuse-first, 09-ARCHIVE fallback, sources: update protocol)
 - `references/MIGRATION.md` — step-by-step backfill procedure for existing flat entities
-- `references/LINK_CONVERSION.md` — (existing) how raw refs become `[[wiki links]]`

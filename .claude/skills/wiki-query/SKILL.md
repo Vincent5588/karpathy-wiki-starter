@@ -6,7 +6,7 @@ description: |
   「查 wiki」「wiki 裡 X 怎麼說」「knowledge base 找 X」「過去我對 X 的決定」
   「historical decision on X」「query wiki」「/query」.
 
-  ALWAYS reads wiki/index.md first to locate relevant pages, then deep-reads
+  ALWAYS resolves and reads the wiki index first to locate relevant pages, then deep-reads
   matching entities/maps, then synthesizes a response. Every claim must be
   cited with [[wiki-link]] back to the source page. If wiki has no relevant
   content, declare "本地知識庫未找到，以下為通用知識回答" before answering.
@@ -36,11 +36,17 @@ user-invocable: true
 
 ## 流水線（4 步驟，順序不可顛倒）
 
-### Step 1：永遠先讀 wiki/index.md
+### Step 1：先定位並讀取索引
 
-```
-Read("wiki/index.md")
-```
+以使用者指定的 vault 根目錄為基準，檢查 `wiki/index.md` 與根目錄 `index.md`：
+
+- 使用者已指定索引 → 讀取該檔；不存在則回報，不自行建立。
+- 只有一份存在 → 使用該份。
+- 兩份皆存在 → 先看是否為明確 redirect；若是則跟隨指向。否則請使用者指定，不自行合併或猜測。
+- 兩份皆無 → 請使用者指定索引；不要把缺索引說成知識庫沒有相關內容。
+
+定位成功後先讀索引。後續提到 index.md 均指本次選定的索引。
+本技能預設唯讀，不建立索引或日誌。
 
 從 index.md 找出與問題相關的：
 - 條目（entities/）
@@ -94,7 +100,7 @@ Read("wiki/entities/<page>.md")
 ### 情況 A：wiki 完全沒有
 
 ```
-Step 1 讀 index.md → 找不到相關條目
+Step 1 成功讀取選定索引 → 找不到相關條目
    ↓
 回應開頭明確聲明：
 「⚠️ 本地知識庫（wiki/）未找到相關內容，以下為通用知識回答：

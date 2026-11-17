@@ -5,7 +5,7 @@ domain: wiki
 status: stable
 tags: [wiki, sop, propagation, maintenance, rules]
 created: 2026-01-01
-updated: 2026-08-13
+updated: 2026-11-17
 aliases: [Propagation Matrix, Wiki cascade rules, 連動更新規則]
 cssclasses: [wide]
 ---
@@ -16,6 +16,7 @@ cssclasses: [wide]
 |------|------|---------|
 | v1.0 | 2026-01-01 | 模板初版（移植自 karpathy-wiki-pattern）|
 | v1.1 | 2026-08-13 | 新增 §8.5（PARA project 子目錄異動 = 規則 Q）+ §8.6（`_MOC` / 含索引 README 同層異動 = 規則 R），配合 CLAUDE.md v1.9 |
+| v1.2 | 2026-11-17 | §8.5 改成「改寫那一格／那一列，不追加」並加〈`_MOC` 不寫流水帳〉（規則 Q v2）；§5 加「改規則 → 同步新手使用手冊 §12」，配合 CLAUDE.md v1.13 |
 
 ---
 
@@ -48,9 +49,9 @@ cssclasses: [wide]
 | `wiki/entities/<domain>/<type>/<X>.md` | 新建 entity 本體 | ✅ **仍做**，但 1 個（v1.6：type 從 8 種挑選依概念性質，**不**寫 longform/；frontmatter 加 `atomize: false` marker）|
 | `wiki/maps/<X>.md`（若衍生 map）| 新建跨主題地圖 | ⚠️ 視主題判斷（atomize:false 通常不衍生 map）|
 | `wiki/daily/YYYY/MM/YYYY-MM-DD.md` | 加 phase / 一行摘要 / 詳細小節 | ✅ 仍做 |
-| `wiki/index.md` header「最後更新」| 改今天日期 + 一句話描述 | ✅ 仍做 |
-| `wiki/index.md` header「entity 計數」| bump 數字 | ✅ 仍做（+1）|
-| `wiki/index.md` domain section | bump 該 domain 條目 | ✅ 仍做（+1）|
+| 選定索引（`index.md` 或 `wiki/index.md`） header「最後更新」| 改今天日期 + 一句話描述 | ✅ 仍做 |
+| 選定索引（`index.md` 或 `wiki/index.md`） header「entity 計數」| bump 數字 | ✅ 仍做（+1）|
+| 選定索引（`index.md` 或 `wiki/index.md`） domain section | bump 該 domain 條目 | ✅ 仍做（+1）|
 | PARA routing | 提案目的地 + 搬檔 | ✅ **仍做**（外部文章 raw → 40-Resources；個人 longform 不必搬）|
 | atomize:false entity body wrapper | LLM 加：摘要 + 核心要點 + 強連結/推斷連結/深入閱讀 + 原文 + 待解 | ✅ **必做**（缺 wrapper = lint 標 🟡。v1.6：marker 從 type=longform 改為 frontmatter `atomize: false`）|
 
@@ -85,11 +86,13 @@ echo "map 總數：$(find $VAULT/wiki/maps -name '*.md' | wc -l)"
 
 ## 2. Lint 跑完
 
+預設只在對話回報，不落檔。以下更新僅在使用者明確要求保存結果，或已批准相同範圍時執行；保存前列出實際路徑。
+
 ### 🔴 強制更新
 
 | 檔案 | 改什麼 |
 |------|------|
-| `wiki/reports/LINT/YYYY/MM/LINT_<TS>.json` | 原始輸出（lint.py 自動寫）|
+| `wiki/reports/LINT/YYYY/MM/LINT_<TS>.json` | 原始輸出（lint.py 只輸出 stdout，由 agent 明確保存）|
 | `wiki/daily/YYYY/MM/YYYY-MM-DD.md` | 一行紀錄「Lint Score N/100」+ 主要問題摘要 |
 | `wiki/PROGRESS.md` | 「系統健康狀態」區塊的 Lint Score 數字 |
 | [[Wiki_健康度監控]] | 追加一 row（時點 / Score / Orphans / Missing / God / Collisions / 觸發事件）|
@@ -168,6 +171,7 @@ echo "map 總數：$(find $VAULT/wiki/maps -name '*.md' | wc -l)"
 | 加新規則 + 內容 ≥ 30 行 | 直接拆 `wiki/rules/rule-X.md`（規則 L），主檔只留 1-row 速查 |
 | 規則 J / D 譯名相關變動 | 同步檢查 [[Wiki_專有名詞對照表]] 是否需要更新 |
 | 規則 K Step 0 預檢分流邏輯變動 | 同步檢查 [[Wiki_Web_Clipper_範本]] frontmatter `pending_action` 值 |
+| 加新規則、或改了某條規則的一句話摘要 | 同步 `新手使用手冊.md` §12 規則白話清單（給人看的版本，只寫一句話） |
 
 ### 💬 自我檢查
 
@@ -235,11 +239,15 @@ grep -rn "v1\.X" $VAULT --include='*.md' | grep -v daily/  # 找所有提到舊�
 
 | 檔案 | 何時改 |
 |------|------|
-| `20-Projects/<name>/_<name>_MOC.md` 📚 文件總索引 | 新建 / 刪除 / 改名文件 |
-| 同檔 🚦 目前進度 | 修改核心文件、Phase 切換 |
+| `20-Projects/<name>/_<name>_MOC.md` 📚 文件索引 | 新建文件 → 加**一列**（證據、快照、複核意見不加列，登記在該資料夾 README）；刪除 / 改名 → 改寫那一列 |
+| 同檔 🚦 現在的狀態 | 修改核心文件、Phase 切換 → **改寫**那一格（不新增列、不在格子裡往後加日期）；過程寫 `<專案>開發日誌.md` |
 | 同檔 frontmatter `updated:` | **永遠**（任何異動）|
 | 上游索引（`index.md` 的進行中專案清單）| 新建 / 結案 project |
 | 該文件自身版本歷程（規則 H）| 核心文件大改 |
+
+### 🔴 `_MOC` 不寫流水帳（規則 Q v2）
+
+`_MOC` 是指引圖：🚦 只寫現在的狀態、每格兩三句；做過什麼寫 `<專案>開發日誌.md`；待決事項決定後搬到決策清單。自我檢查：某一行超過 2,000 字、或同一份文件在表格裡當第一個連結出現 8 列以上，就是在寫流水帳了。
 
 ### ⚠️ 例外（不必動 `_MOC`）
 

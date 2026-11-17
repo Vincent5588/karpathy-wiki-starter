@@ -2,6 +2,8 @@
 
 > 一個以 **PARA + Zettelkasten + LLM** 三層架構打造的個人知識庫模板。
 > 基於 [Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)。
+>
+> 🆕 **第一次用？先讀 [新手使用手冊](新手使用手冊.md)**：安裝 Obsidian、基本設定、外掛、接上 Claude、第一次整理、規則白話清單，一步一步做。
 
 ---
 
@@ -98,16 +100,16 @@ git commit -m "init: my wiki vault (forked from karpathy-wiki-starter v1.0)"
 
 **3. 外掛（都已內建）**
 
-- **Obsidian 外掛**：Dataview、Templater、Omnisearch、Excalidraw 已經放在 `.obsidian/plugins/`。第一次打開 vault 時 Obsidian 會問要不要信任作者並啟用社群外掛，選信任即可。
-- **Claude 技能**（`karpathy-wiki-pattern` v1.4.5 公開版，7 個技能：ingest、lint、query、repair、compile、status-promote、youtube-to-notebooklm）：
+- **Obsidian 外掛（8 個）**：Dataview、Templater、Omnisearch、Text Extractor、AI Image Analyzer、Excalidraw、File Color、Iconize 已經放在 `.obsidian/plugins/`，連結格式、附件資料夾、範本資料夾、寬版面也已預設好。第一次打開 vault 時 Obsidian 會問要不要信任作者並啟用社群外掛，選信任即可。各外掛怎麼設定見 [新手使用手冊](新手使用手冊.md) §5。
+- **Claude 技能**（`karpathy-wiki-pattern` v1.4.6 公開版，7 個技能：ingest、lint、query、repair、compile、status-promote、youtube-to-notebooklm）：
   - **Claude Code**：已內建在 `.claude/skills/`，在 vault 根目錄開 `claude` 就自動載入，不用另外安裝
-  - **Claude 桌面版的 Cowork**：把 `plugin/karpathy-wiki-pattern-v1.4.5.plugin` 拖進 Cowork 視窗，照提示安裝
+  - **Claude 對話或 Cowork**：Claude 桌面版或網頁版 → Customize › Plugins › Add › Upload plugin，選 `plugin/karpathy-wiki-pattern-v1.4.6.plugin`
   - 兩種只要擇一，不要兩邊都裝，否則同一個技能會出現兩次
-- **Mermaid 圖匯出（選用）**：想把筆記裡的 Mermaid 圖畫成 SVG／PNG 放進報告或傳給別人，每台電腦先裝一次 Pele（需要 Node.js；出 PNG 另需 Chrome 或 Edge）：macOS／Linux 跑 `sh wiki/tools/pele/install.sh`，Windows 跑 `powershell -ExecutionPolicy Bypass -File wiki\tools\pele\install.ps1`。用法見 `Templates/Mermaid 圖範本.md` ⑤。只在 Obsidian 裡看圖的話不用裝
+- **Mermaid 圖匯出（選用）**：想把筆記裡的 Mermaid 圖畫成 SVG／PNG 放進報告或傳給別人，每台電腦先裝一次 Pele（需要 Node.js；出 PNG 另需 Chrome 或 Edge）：macOS／Linux 跑 `sh wiki/tools/pele/install.sh`，Windows 跑 `powershell -ExecutionPolicy Bypass -File wiki\tools\pele\install.ps1`。用法見 `40-Resources/Templates/Mermaid 圖範本.md` ⑤。只在 Obsidian 裡看圖的話不用裝
 
-**4. 啟用 wide-pages CSS snippet（讓表格顯示正常）**
+**4. 確認 wide-pages CSS snippet 已啟用（讓表格顯示正常）**
 
-Settings → Appearance → CSS snippets → 啟用 `wide-pages`
+已預設啟用；沒生效就到 Settings → Appearance → CSS snippets 打開 `wide-pages`
 
 **5. 在 vault 根目錄開啟 Claude Code**
 ```bash
@@ -161,18 +163,19 @@ my-wiki/
 ├── 20-Projects/        ← 進行中的專案
 ├── 30-Areas/           ← 長期關注的領域
 ├── 40-Resources/       ← 主題參考資料
-│   └── PKM入門/        ← 內建入門教材（讀完可刪）
+│   ├── PKM入門/        ← 內建入門教材（讀完可刪）
+│   └── Templates/      ← 筆記模板
 ├── 50-Archive/         ← 封存
 ├── wiki/               ← AI 維護的知識編譯層（不要手動大改）
 │   ├── entities/       ← 知識卡片（domain/type/名稱.md）
 │   ├── maps/           ← 跨主題視覺地圖
 │   ├── daily/          ← AI 操作日誌
-│   ├── index.md        ← 知識主目錄
-│   └── PROGRESS.md     ← 新 session 必讀狀態面板
-├── Templates/          ← 筆記模板
+│   └── PROGRESS.md     ← 接續工作時讀的狀態面板
 ├── Attachments/        ← 圖片 / 附件
 ├── .claude/skills/     ← Claude 技能 7 個（Claude Code 自動載入）
-├── plugin/             ← 同一套技能的安裝檔（給 Cowork 用）
+├── plugin/             ← 同一套技能的安裝檔（給對話分頁／Cowork 上傳用）
+├── index.md            ← 知識主目錄
+├── 新手使用手冊.md      ← 給人看的入門手冊
 └── CLAUDE.md           ← AI 行為規範（核心）
 ```
 
@@ -217,5 +220,5 @@ wiki/entities/
 ## 授權 & 致謝
 
 - 架構來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-- Plugin：karpathy-wiki-pattern v1.4.5 公開版（`.claude/skills/`、`plugin/`；MIT）。跟維護者自用版的差別只在範例：改成虛構的訂單系統等通用領域、移除個人 vault 名稱，並拿掉 Notion 同步
+- Plugin：karpathy-wiki-pattern v1.4.6 公開版（`.claude/skills/`、`plugin/`；MIT）。公開版包含 starter 路徑與維護流程修正；範例：改成虛構的訂單系統等通用領域、移除個人 vault 名稱，並拿掉 Notion 同步
 - 模板維護：歡迎 PR / Issue

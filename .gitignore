@@ -2,6 +2,8 @@
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
 .obsidian/plugins/*/data.json
+# Text Extractor / AI Image Analyzer 的抽字快取（內容來自你自己的 PDF 與圖片）
+.obsidian/plugins/*/cache/
 
 # OS files
 .DS_Store

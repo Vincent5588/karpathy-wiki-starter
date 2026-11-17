@@ -1,50 +1,54 @@
+---
+title: "Attachments — 圖片 / PDF / 二進位附件"
+type: artifact
+status: active
+tags: [attachments, readme]
+created: 2026-05-11  # 依 git 第一次加入的日期
+updated: 2026-11-17
+---
+
 # Attachments — 圖片 / PDF / 二進位附件
 
 > **vault 內所有非 markdown 檔的統一存放區**
 
 ## 📌 用途（給人）
 
-放**圖片、PDF、影片、二進位附件**。Markdown 檔內用相對路徑引用，譬如：
+放**圖片、PDF、影片、二進位附件**。Obsidian 已預設：貼上或拖進來的新附件會放到這裡（設定 → 檔案與連結 → 附件資料夾路徑）。
 
-```markdown
-![截圖說明](Attachments/some-source/01-架構圖.png)
-```
-
-## 🗂 子資料夾規範（依 [[CLAUDE]] 規則 I）
-
-每個來源（raw / entity）對應一個子資料夾：
+## 🗂 結構：`<分類>/<來源>/` 兩層（依 [[CLAUDE]] 規則 I）
 
 ```
 Attachments/
-├── <source-basename>/          ← 對應某個 raw / entity
-│   ├── 01-架構圖.png
-│   ├── 02-流程說明.png
-│   └── 03-結果截圖.jpg
-├── youtube-某影片標題/
-│   ├── 01-thumbnail.jpg
-│   └── 02-關鍵畫面.png
-└── article-某文章/
-    └── 01-原圖.png
+├── README.md                     ← 根層只放這份 README 與分類夾
+├── learning/                     ← 分類：跟 40-Resources/ 的分類同一套
+│   ├── <source-basename>/        ← 對應某個 raw / entity
+│   │   ├── 01-架構圖.png
+│   │   └── 02-流程說明.png
+│   └── youtube-某影片標題/
+│       └── 01-關鍵畫面.png
+└── work/
+    └── article-某文章/
+        └── 01-原圖.png
 ```
 
-**子資料夾命名**：raw / entity 的 basename（kebab-case 縮短版）
-
-**檔案命名**：`<NN>-<short-desc>.<ext>`
-- `NN`：兩位數序號（01, 02, ...）
-- `short-desc`：圖片用途的中文短描述
-- 範例：`01-cmux 介面截圖.png`
+- **分類**：主題或專案，名稱跟 `40-Resources/` 的分類同一套；用過的就沿用，不開同義詞
+- **來源夾命名**：raw / entity 的 basename（縮短版）
+- **檔案命名**：`<NN>-<short-desc>.<ext>`——`NN` 兩位數序號、`short-desc` 中文短描述，例如 `01-cmux 介面截圖.png`
+- 🔴 **根層不放零散檔案**：直接貼在根層的圖＝待分類，整理時請 AI 歸到分類夾
 
 ## 🤖 LLM 行為規範
 
-- ✅ ingest 含外部圖的 raw 時，**必須下載到本地**（依規則 I）：
+- ✅ ingest 含外部圖的 raw 時，**必須下載到本地**（規則 I）：
   ```
-  raw 內 ![alt](https://外部 URL) 
+  raw 內 ![alt](https://外部 URL)
        ↓
-  下載到 Attachments/<source>/<NN>-<desc>.<ext>
+  下載到 Attachments/<分類>/<source>/<NN>-<desc>.<ext>
        ↓
-  entity 引用改為 ![alt](Attachments/<source>/<NN>-<file>.ext)
+  entity 引用改為 ![alt](Attachments/<分類>/<source>/<NN>-<file>.ext)
   ```
-- ✅ web-restricted 環境（Cowork / Claude.ai 無法直接下載）→ 產 `outputs/download_*.sh` 腳本給使用者執行
+- ✅ 路徑含空白或全形括號時，引用改用 `![[檔名]]`
+- ✅ 搬附件一律在 Obsidian 裡搬（檔案列表拖曳或右鍵移動），連結才會自動改
+- ✅ 不能連外下載的環境（Cowork、對話分頁、Claude.ai）→ 產 `outputs/download_*.sh` 腳本給使用者執行
 - ❌ **不直接引用外部 CDN URL**——原作者刪文 / 換 domain 後圖會壞
 - ❌ 不刪 attachments（即使對應 entity 已刪）——可能有別處引用
 
@@ -61,6 +65,7 @@ Attachments/
 - **純裝飾圖**（網站 banner / footer logo）可省略
 - **太大 / 版權敏感的圖** 只放原檔連結 + 註明「原檔有圖」
 - **網路圖示截圖**（譬如別家 app 的官方 logo）→ 看版權
+- **既有附件不另開搬遷工程**：新下載的照新結構放；舊的改到時再順手搬
 
 ## 💡 子資料夾不需 README
 

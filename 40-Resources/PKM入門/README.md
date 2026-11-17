@@ -1,8 +1,11 @@
 ---
 title: "PKM 入門：卡片盒、第二大腦、LLM Wiki、PKA"
+type: artifact
+status: active
 tags: [pkm, pka, 入門, llm-wiki]
+source: "維護者的上課講義（CLAUDE_versions v1.11）"
 created: 2026-10-24
-updated: 2026-11-01
+updated: 2026-11-17
 cssclasses: [wide]
 ---
 

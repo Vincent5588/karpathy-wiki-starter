@@ -6,7 +6,7 @@ type: dashboard
 status: draft
 maintained_by: LLM
 created: 2026-01-01
-updated: 2026-01-01
+updated: 2026-11-17
 cssclasses: [wide]
 ---
 
@@ -86,7 +86,7 @@ LIMIT 10
 
 - [[Wiki_健康度監控]] — Lint score 趨勢
 - [[WIKI_TODO]] — 完整待辦清單
-- [[wiki/PROGRESS]] — 新 session 必讀狀態面板
-- [[wiki/index]] — 主目錄
+- [[PROGRESS]] — 接續工作時讀的狀態面板
+- [[index]] — 主目錄
 
 ← 回到 [[wiki/index]]

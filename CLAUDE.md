@@ -3,18 +3,26 @@
 > 本檔給進入此 vault 的 LLM agent（Claude Code / Cowork / Codex / Cursor 等）讀。
 > 規範你在維護本 vault 時要遵守的結構、慣例、工作流程。
 > 模式來源：[Andrej Karpathy LLM Wiki Pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-> Plugin release：**karpathy-wiki-pattern v1.4.5 公開版**（含 7 skills，不含 Notion 同步；Claude Code 從 `.claude/skills/` 自動載入，Cowork 用 `plugin/` 的安裝檔）
-> Vault patch：**v1.12**（新增規則 W：Mermaid 視覺規範＋匯出工具 `wiki/tools/pele/`＋`Templates/Mermaid 圖範本.md`）
+> Plugin release：**karpathy-wiki-pattern v1.4.6 公開版**（含 7 skills，不含 Notion 同步；Claude Code 從 `.claude/skills/` 自動載入，Cowork 用 `plugin/` 的安裝檔）
+> Vault patch：**v1.13**（補齊 8 項通用規則：新增規則 X 文件屬性；規則 K v2 剪報前處理與查證、規則 O 按需讀取、規則 Q 改寫不追加等；範本移到 `40-Resources/Templates/`；內建 8 個 Obsidian 外掛）
 
 ---
 
-## ⚡ 新 Session 熱身（必做）
+## ⚡ 新 Session 按需路由（v1.13 起取代「開場必讀」）
 
-**第一步**：讀 `wiki/PROGRESS.md`——30 秒掌握 vault 當前健康狀態、Top 5 待辦、上次 session 做了什麼。
+先判斷任務，再讀命中的檔；不做固定的開場全讀（規則 O §O.2）。
 
-**最後一步**：session 結束前更新 `wiki/PROGRESS.md` 的「上次 Session 摘要」（1-3 行 bullet）並視需要調整 Top 5 排序。
+| 任務需要 | 讀取 |
+|---|---|
+| 一般問答，不涉及這個 vault 的內容 | 不讀 vault |
+| 接續上次工作／查目前狀態 | `wiki/PROGRESS.md` |
+| 要寫入、移檔、ingest、改規範 | 先看本檔 §11 Quick Reference 整張表，挑出這次會碰到的列，再讀那幾條規則 ＋ [[Wiki_維護觸發規則]] 相關節 |
+| 特定主題／專案 | 對應 domain 的 entity 或專案 `_MOC` |
+| 不確定要讀哪裡 | 先搜檔名、索引、關鍵字，找到候選再讀——不確定不是讀完整個 vault 的理由 |
 
-> TODO 三層分工：`wiki/PROGRESS.md`（開 session 必讀，top 5）→ `wiki/TODO.md`（完整積壓清單）→ `memory/project_*.md`（跨 session project 上下文 Why/背景）
+**最後一步**：這次確實改變了 vault 狀態或專案進度時，session 結束前更新 `wiki/PROGRESS.md` 的「上次 Session 摘要」（1-3 行 bullet）並視需要調整 Top 5 排序。
+
+> TODO 三層分工：`wiki/PROGRESS.md`（接續工作時讀，top 5）→ `Wiki操作文件/WIKI_TODO.md`（完整積壓清單）→ `memory/project_*.md`（跨 session project 上下文 Why/背景）
 
 > 🚨 **任何 vault 寫入前必跑規則 P**（v1.8）：在 chat 引用 [[Wiki_維護觸發規則]] §N 的 cascade 清單，無法引用 = 沒讀過觸發規則 = 必停下來讀。詳見 [[rule-P-cascade-citation|規則 P]]。
 
@@ -22,9 +30,12 @@
 
 ## 0. 版本歷程
 
-> **v1.12**（2026-11-01）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
-> v1.12 新增規則 W（Mermaid 視覺規範：共用開頭、九類語意色、分區留白；匯出與展示的圖優先用 Pele 畫成 SVG／PNG）；新範本 `Templates/Mermaid 圖範本.md`、新工具 `wiki/tools/pele/`（Pele 版本鎖定、每台電腦各裝一次）；§11 Quick Reference 加 1 row、§15 加 15.1。
-> v1.11（2026-10-24）內建 PKM 入門教材 `40-Resources/PKM入門/`（方法論總覽、PKM 與 PKA 架構、vault 建置與上手）；內建 plugin v1.4.5 公開版（`.claude/skills/` 給 Claude Code、`plugin/` 給 Cowork，原本只寫「附帶」但沒有附）；§1 結構樹補註。
+- 2026-10-29：starter skills / plugin v1.4.6 修正 query 索引定位、lint 唯讀預設、ingest 維護路徑與 compile 來源追溯；Vault patch 維持 v1.11。
+
+> **v1.13**（2026-11-17）。完整版本歷程：`Wiki操作文件/CLAUDE_versions.md`。
+> v1.13 補齊 Vincent5588 的 8 項通用規則（新增規則 X；規則 I／J／K／M／O／Q 升版；§13 鐵則 4 分雲端同步資料夾內外）；開場改按需路由；範本移到 `40-Resources/Templates/`；內建 Obsidian 外掛 4 → 8 個並預設好連結、附件、範本資料夾；新增根目錄 `新手使用手冊.md`。
+> v1.12（2026-11-01）新增規則 W（Mermaid 視覺規範：共用開頭、九類語意色、分區留白；匯出與展示的圖優先用 Pele 畫成 SVG／PNG）；新範本 `Templates/Mermaid 圖範本.md`、新工具 `wiki/tools/pele/`（Pele 版本鎖定、每台電腦各裝一次）；§11 Quick Reference 加 1 row、§15 加 15.1。
+> v1.11（2026-10-24）內建 PKM 入門教材 `40-Resources/PKM入門/`（方法論總覽、PKM 與 PKA 架構、vault 建置與上手）；內建 plugin v1.4.6 公開版（`.claude/skills/` 給 Claude Code、`plugin/` 給 Cowork，原本只寫「附帶」但沒有附）；§1 結構樹補註。
 > v1.10（2026-09-24）新增規則 U（判定用預期必須可達且有鑑別力）+ 經驗法則 9（治理工具改動節流 ＋ 以人為尊）；§4 type 停用清單加入「別為單一內容偷懶開新 type」心法；§13 鐵則 3 補 3c 行尾紀律；經驗法則 4 補「易過期參數查表不查記憶 + 驗證探針必須真的執行」；經驗法則 5 補「待解看承重點」+「inlinks 不代表值得獨立成頁」。
 > v1.9（2026-08-13）新增規則 Q/R/S/T + 經驗法則 4-8；§6 補 Wikilink 語法紀律、§13 補工具鐵則 2-4。
 
@@ -54,22 +65,23 @@ my-wiki/
 │   ├── maps/               ← 跨主題 mermaid 地圖
 │   ├── daily/              ← 每日 wiki 操作日誌（按年月分層）
 │   ├── rules/              ← 拆出的規則詳細文件
-│   └── PROGRESS.md         ← 新 session 必讀狀態面板
+│   └── PROGRESS.md         ← 接續工作時讀的狀態面板
 │
 ├── 10-Notes/               ← PARA: 永久筆記（Zettelkasten）
 ├── 20-Projects/            ← PARA: 進行中專案
 ├── 30-Areas/               ← PARA: 長期領域
 ├── 40-Resources/           ← PARA: 主題參考資料
 │   ├── <主題>/             （依 domain 內主題建子目錄分類）
-│   └── PKM入門/            （模板內建入門教材；不是使用者素材，不要主動 ingest；使用者可刪或封存）
+│   ├── PKM入門/            （模板內建入門教材；不是使用者素材，不要主動 ingest；使用者可刪或封存）
+│   └── Templates/          （筆記範本；Obsidian 的模板資料夾已預設指向這裡，搬動要同步改 `.obsidian/templates.json`）
 ├── 50-Archive/             ← PARA: 已封存
-├── Templates/              ← 筆記模板
-├── Attachments/            ← 圖片 / PDF 附件
+├── Attachments/            ← 圖片 / PDF 附件（規則 I：`<分類>/<來源>/` 兩層）
 ├── .claude/skills/         ← karpathy-wiki-pattern 7 個 skill（Claude Code 在 vault 根目錄啟動時自動載入）
 ├── plugin/                 ← 同一套 skill 的 .plugin 安裝檔（給 Cowork）；改 skill 時兩邊要一起改
 ├── Wiki操作文件/            ← wiki 維護文件（健康度監控 / 儀表板 / SOP / 觸發規則等）
 │   └── CLAUDE_versions.md  ← CLAUDE.md 版本歷程 SSOT
-└── index.md                ← wiki 主目錄（必須能裝進單一 context window）
+├── index.md                ← wiki 主目錄（必須能裝進單一 context window）
+└── 新手使用手冊.md          ← 給人看的入門手冊（安裝、設定、SOP、規則白話版）
 ```
 
 ---
@@ -92,7 +104,7 @@ my-wiki/
   - **`wiki/daily/YYYY/MM/YYYY-MM-DD.md`**（每次操作必寫日誌，見 §15）
 - 每頁必有 frontmatter（含必填欄位 `domain`、`type`、`status`——詳見 §4）
 
-### 規則 C：使用者 PARA 資料夾（00-50, Templates）= 原始檔保留區
+### 規則 C：使用者 PARA 資料夾（00-50，含 `40-Resources/Templates`）= 原始檔保留區
 
 **核心原則**：10-Notes / 20-Projects / 30-Areas / 40-Resources / 50-Archive **五層全部都是原始檔保留區**，LLM **永不刪除、永不修改既有檔案內容**。
 
@@ -148,7 +160,7 @@ my-wiki/
      e. body 含 entity wrapper（摘要 + 核心要點 + 關係 sections + 原文 + 待解）
 3.5 raw 含圖則下載 + 本地引用（見規則 I）：兩種模式都做
    a. 識別 raw 內所有 ![alt](url) 外部圖片
-   b. 下載到 Attachments/<source-basename>/<NN>-<short-desc>.<ext>
+   b. 下載到 Attachments/<分類>/<source-basename>/<NN>-<short-desc>.<ext>（分類與 40-Resources 同一套；根層不開新夾）
    c. entity 引用改本地
 4. 為相關既有概念加 backlink（兩種模式都做）
 5. 標記與既有 wiki 的矛盾，提醒使用者
@@ -240,7 +252,7 @@ LLM 在 Step 0 預檢時依下列三層優先序決定該 raw 怎麼建 entity�
 
 ##### 用途配套
 
-- 立即可用模板：`Templates/Longform Note.md`（type 留 placeholder，v1.6 起 LLM 依內容挑 8 種之一）
+- 立即可用模板：`40-Resources/Templates/Longform Note.md`（type 留 placeholder，v1.6 起 LLM 依內容挑 8 種之一）
 - 預設 longform 資料夾：`00-Inbox/longform/`（**僅 inbox 路徑信號** → 自動觸發 atomize:false；entity 路徑不對應）
 
 **每次 ingest 必更新的檔案清單（速查）**：
@@ -251,7 +263,7 @@ LLM 在 Step 0 預檢時依下列三層優先序決定該 raw 怎麼建 entity�
 | ② | `index.md` | 新增條目連結 + 更新計數/日期 | step 6 |
 | ③ | `wiki/daily/YYYY/MM/YYYY-MM-DD.md` | 當日詳細異動 | step 7 |
 | ④ | entity frontmatter `source:` | routing 完成後更新路徑 | step 10 |
-| ⑤ | `Attachments/<source>/` | 下載 raw 中所有外部圖片到本地 | step 3.5 |
+| ⑤ | `Attachments/<分類>/<source>/` | 下載 raw 中所有外部圖片到本地 | step 3.5 |
 
 #### 3.1.1.1 Step 0.5：內容性質判定（v1.2 新增）
 
@@ -389,6 +401,8 @@ LLM：[建多個 atomic entity 而非 1 個 longform]
 ---
 
 ## 4. wiki/entities/ 頁面格式
+
+> 本節只管 wiki 頁面。收件匣草稿、專案文件、40-Resources 等其他位置要哪幾欄，看 [[rule-X-frontmatter|規則 X]] X.1。
 
 ### 必要 frontmatter
 
@@ -683,7 +697,7 @@ WHERE status = "draft"
 
 ### 規則 I：raw 含圖必下載到 Attachments + entity 本地引用（v1.3.11）
 
-> raw 含 `![alt](https://...)` 外部圖片 → **必下載到 `Attachments/<source>/<NN>-<desc>.<ext>` + entity 改用本地引用**。詳細：`wiki/rules/rule-I-image-localization.md`。
+> raw 含 `![alt](https://...)` 外部圖片 → **必下載到 `Attachments/<分類>/<source>/<NN>-<desc>.<ext>` + entity 改用本地引用**。分類與 `40-Resources/` 同一套，根層不開新夾；搬附件在 Obsidian 裡搬（v1.13）。詳細：`wiki/rules/rule-I-image-localization.md`。
 
 **Why**：外部 CDN 連結會壞 + vault 不自包含。**How to apply**：Claude Code session 直接 curl；web-restricted session 產 download script 給使用者執行。
 
@@ -691,13 +705,13 @@ WHERE status = "draft"
 
 > wiki entity / map / index 全部繁體中文（J.1）；英文專有名詞加中英對照 `Term（中文）`（J.2）；英文 quote 加繁中翻譯（J.3）。詳細：`wiki/rules/rule-J-translation-policy.md`。
 
-**Why**：逐字翻譯成本高；NotebookLM 繁中摘要品質夠 + token 少。**How to apply**：英文 YT / 網頁 → NotebookLM 產繁中報告 → 從報告抽 entity；簡中 → ingest 時順手簡轉繁。
+**Why**：逐字翻譯成本高；先產繁中報告再抽 entity，品質夠 + token 少。**How to apply**：英文 YT 單支走本機 fast-path（經驗法則 4）、多支才走 NotebookLM；英文網頁照規則 K §K.2 先產繁中報告（附查證表）→ 從報告抽 entity；簡中 → ingest 時順手簡轉繁。
 
-### 規則 K：raw 預檢 SOP（v1.3.22）
+### 規則 K：raw 預檢、剪報前處理與查證（v1.3.22；v2 v1.13）
 
-> ingest 前 **Step 0 必偵測 raw 性質**並依類型路由（YT URL / 英文文章 / 繁中完整 / Web Clipper clip）。詳細：`wiki/rules/rule-K-raw-precheck.md`。
+> ingest 前 **Step 0 必偵測 raw 性質**並依類型路由（Web Clipper 剪報讀 `pending_action` / 繁中完整 → 直接 ingest）。**v2：YouTube 空殼、GitHub 剪報、英文或被截斷的網頁先另做一份報告（附查證表、`supersedes:` 指回原剪報）再 ingest；報告做好，原剪報就移到 `50-Archive/raw-archive-clipper-stubs/`；查證表「查無」的名稱不進 entity 正文。** 詳細：`wiki/rules/rule-K-raw-precheck.md`。
 
-**Why**：不能假設 raw 已是可 ingest 狀態。**How to apply**：讀 raw 前 100 行 → 對照分流表 → 提案（規則 E）→ 等批准。
+**Why**：不能假設 raw 已是可 ingest 狀態；剪報空殼只有標題與描述，直接 ingest 只會產出薄 entity，而轉錄與 AI 摘要的專有名詞會系統性出錯（經驗法則 7）。**How to apply**：讀 raw（frontmatter＋全文）→ 對照分流表 → 該前處理就先產報告＋查證表 → 提案（規則 E）→ 等批准。
 
 ### 規則 L：未來新規則 / 經驗法則直接拆檔（v1.3.23）
 
@@ -710,7 +724,7 @@ WHERE status = "draft"
 > 詳細：`wiki/rules/rule-M-execution-philosophy.md`
 
 **4 條核心執行紀律**：
-- **M.1 Reality Checker**：default NEEDS WORK，要 evidence 才說 done
+- **M.1 Reality Checker**：default NEEDS WORK，要 evidence 才說 done；**對整份來源一致適用**——判定某段不可信，同一份的其他段也要同等查核（v1.13）
 - **M.2 Minimal Change Engineer**：只做被要求的最小 diff，不做額外重構
 - **M.3 Code Reviewer**：5 維度（正確性/安全性/效能/可維護性/風格）+ 三級分類（must-fix / should-fix / nit）
 - **M.4 Codebase Onboarding**：facts only，不推斷沒看到的東西
@@ -741,17 +755,19 @@ WHERE status = "draft"
 
 > 詳細：`wiki/rules/rule-O-discovery-before-action.md`
 
-**核心鐵則**：執行任何 ingest / cascade update / 規範改動前**必先**跑 Discovery 三步（ls → 讀必讀檔 → confirm ground truth vs doc drift），不能憑「自以為了解」直接動作。違反就是 drift 來源。
+**核心鐵則**：先判斷任務，再搜尋候選並讀取命中的 SSOT；執行任何 ingest / cascade update / 規範改動前跑 Discovery 四步（grep 主題 → ls → 讀命中的 SSOT → confirm ground truth vs doc drift），不能憑「自以為了解」直接動作，也不能把 Discovery 誤解成每次全讀。
 
 **Why**：LLM 在 vault 工作最深盲點是「不先發現就跳動作」。**規則 E（output 紀律：寫前先 show）+ 規則 M.4（claim 紀律：facts only no inference）+ 規則 O（input 紀律：執行前先探勘）= LLM 行為紀律完整三角**。三條都 codify 才能避免「output / claim / input」三層 drift。**根本原則**：靠規則約束不靠 LLM 自律——LLM 自律下個 session 就忘，規則寫進 CLAUDE.md 永遠在 system prompt。
 
 **How to apply**：
 
-(1) **行為層 Read 工具用法**：default 讀全文（不確定就讀全文 = default safe）；Read 工具預設讀 2000 行，加 limit 是錯誤的自我約束；大檔（>2000 行）先 grep H2/H3 結構再 selective。反模式：對未讀過規範加 `limit:80` / 用 grep 取代 Read。
+(1) **行為層 Read 工具用法**：先縮小到與任務有關的檔；選中的檔讀全文（不自我保守加 limit），大檔（>2000 行）先 grep H2/H3 結構再 selective。**不確定不是掃完整個 vault 的理由**——先查索引、檔名、關鍵字找候選。反模式：對選中的規範加 `limit:80` / 用 grep 取代 Read。
 
-(2) **文件層 `_` 前綴 = SSOT 慣例**：`_README.md` = 進該資料夾必讀 SSOT、`_MOC.md` = 該主題結構索引 hub、`_skill-staging/` = skill source 編輯區（不是 plugin 載入點）。看見 `_` 前綴 = 立刻讀全文。每次 ingest 必讀基準清單：`CLAUDE.md` + `Wiki_維護觸發規則.md` + 對應 `rule-X.md` + domain `_MOC.md` + 目標 `_README.md`。
+(2) **文件層 按任務觸發 + `_` 前綴 = SSOT 慣例**：`_README.md` = 該資料夾 SSOT、`_MOC.md` = 該主題結構索引 hub——任務路由到該層時才讀，命中後不得漏讀。讀取清單照任務觸發（寫入／ingest → 相關規則＋觸發規則；特定 domain → `_MOC`），不再有固定全讀清單。
 
-(3) **SOP 層 Discovery 三步**：ls 探勘（看見 `_` 立刻讀）→ 讀必讀檔（不加 limit）→ confirm ground truth vs doc drift（不一致時 chat 報告 + 提案修哪邊，規則 E 配套）。
+(2.5) **主題層（v1.13）**：寫任何**事實性規格**（schema／欄位／API／外部系統流程）前，先 `grep -ril '<主題>' 40-Resources/ wiki/entities/` 並檢查有無對應 skill——路徑導向的清單掃不到「主題的知識庫不在我要寫的路徑上」。
+
+(3) **SOP 層 Discovery 四步**：grep 主題 → ls 探勘 → 讀命中的 SSOT → confirm ground truth vs doc drift（不一致時 chat 報告 + 提案修哪邊，規則 E 配套）。
 
 (4) **Reference Discipline（v1.1 新增）**：引用 / 描述既有檔案 / entity / 路徑前**必先 ls / grep verify** canonical name + 實際狀態，不憑印象寫 `[[basename]]` 或「X 未實施」之類描述。常見錯配：wikilink basename 大小寫 / spacing 寫錯造成 dangling link 被 Obsidian auto-create 空檔；模糊詞「應該 / 大概 / 待確認」= 沒 verify 的暗號，verify 後改用「已確認 / 不存在 / mtime 為 Z」明確詞。
 
@@ -763,13 +779,13 @@ WHERE status = "draft"
 
 **Why**：歷史上 LLM 反覆踩同一個雷——知道要做 X，但漏 cascade。CLAUDE.md 寫「必讀觸發規則」是被動文字、無法 enforce。把「我可能跳過」變成 **chat 中明顯 caller-verifiable 的動作**：要嘛我有引用 §N + cascade 清單，要嘛我沒有（= 證明沒讀）。**規則三角閉環**：規則 E（output 紀律：寫前先 show）+ 規則 O（input 紀律：執行前先探勘）+ **規則 P（process 紀律：cascade plan 寫出來給 caller 看）= 完整 input / output / process 三層 verifiable 紀律**。
 
-**How to apply**：寫入前必輸出 `依 [[Wiki_維護觸發規則]] §N，本次「<動作>」將 cascade：① ... ② ... → 自我檢查：<bash>`。使用者隨時可喊「規則 P check」要求 LLM 列當前已 cascade vs 應 cascade diff。配套：wiki-ingest skill staging Step 0（plugin v1.4.5+） + lint.py cascade 完整性檢查（v1.3.9+）。
+**How to apply**：寫入前必輸出 `依 [[Wiki_維護觸發規則]] §N，本次「<動作>」將 cascade：① ... ② ... → 自我檢查：<bash>`。使用者隨時可喊「規則 P check」要求 LLM 列當前已 cascade vs 應 cascade diff。配套：wiki-ingest skill staging Step 0（plugin v1.4.6+） + lint.py cascade 完整性檢查（v1.3.9+）。
 
 ### 規則 Q：PARA Project 維護規範（MOC SSOT + 異動 Cascade）
 
 > 每個 `20-Projects/<name>/` 子目錄**必有** `_<name>_MOC.md` 作為該 project SSOT；子目錄內任何檔案異動（新建 / 修改 / 刪除 / 改名）都要回頭更新 `_MOC` + 同步上游索引。詳細：`wiki/rules/rule-Q-para-moc.md`。
 
-**Why**：project 子目錄常累積 5-30 個檔案，沒 SSOT 入口會散亂；`_MOC` + 異動 cascade ＝「打開 `_MOC` 30 秒掌握全貌」。**How to apply**：動檔前先讀 `_MOC`（規則 O）→ show before write（規則 E）→ 動完同步 `_MOC` + 上游索引 + bump `updated` → chat cite cascade（規則 P）。🔴 **鎖定 / 登記單位是「專案」不是「檔」**——只鎖你打算改的檔，`_MOC` 就落在「一定會寫、但鎖沒涵蓋」的縫裡。
+**Why**：project 子目錄常累積 5-30 個檔案，沒 SSOT 入口會散亂；`_MOC` + 異動 cascade ＝「打開 `_MOC` 30 秒掌握全貌」。**How to apply**：動檔前先讀 `_MOC`（規則 O）→ show before write（規則 E）→ 動完同步 `_MOC` + 上游索引 + bump `updated` → chat cite cascade（規則 P）。🔴 **鎖定 / 登記單位是「專案」不是「檔」**——只鎖你打算改的檔，`_MOC` 就落在「一定會寫、但鎖沒涵蓋」的縫裡。🆕 **`_MOC` 是指引圖：有變動就改寫那一格／那一列，不追加**；一份文件一列；待決決定後搬到決策清單；過程寫 `<專案>開發日誌.md`（v1.13）。
 
 ### 規則 R：_MOC / README updated bump 紀律
 
@@ -797,9 +813,15 @@ WHERE status = "draft"
 
 ### 規則 W：Mermaid 視覺規範（Obsidian Dark — Grouped Workflow）
 
-> vault 內**新寫或被改到**的 Mermaid 圖（Obsidian 筆記＋HTML 報告）一律套同一套深色配色：**共用開頭**（所有圖種）＋**九類語意色**（流程圖每個節點都掛 class、10px 圓角）＋深藍／深紫分區面板；**匯出與展示的成品優先用 Pele 畫成 SVG／PNG**。既有圖不另開遷移工程，改到該檔時順手換。詳細：`wiki/rules/rule-W-mermaid-visual-style.md`；可複製的碼：`Templates/Mermaid 圖範本.md`。
+> vault 內**新寫或被改到**的 Mermaid 圖（Obsidian 筆記＋HTML 報告）一律套同一套深色配色：**共用開頭**（所有圖種）＋**九類語意色**（流程圖每個節點都掛 class、10px 圓角）＋深藍／深紫分區面板；**匯出與展示的成品優先用 Pele 畫成 SVG／PNG**。既有圖不另開遷移工程，改到該檔時順手換。詳細：`wiki/rules/rule-W-mermaid-visual-style.md`；可複製的碼：`40-Resources/Templates/Mermaid 圖範本.md`。
 
 **Why**：圖各自配色，整個 vault 看起來就像好幾個人拼起來的；而且 Obsidian 深色模式會把 Mermaid 圖整張反相、連線標籤會讀不到、iPhone 上圓角會消失——這些坑每張圖都要重踩一次，不如一份範本一次解決。**How to apply**：貼範本、每個節點掛 class、寫完在 Obsidian 深色模式預覽一次（看截圖，不是讀色碼）；共用開頭裡的 `themeCSS` 與 `edgeLabelBackground` 不要刪；圓角一定寫 `rx:10px`（不帶單位時 Safari／iPhone 上是直角）。**匯出、HTML 報告、給 vault 以外的人看的圖**用 `node wiki/tools/pele/render.mjs <筆記.md> <輸出.svg> --png <輸出.png>` 從同一份原文畫，配色只來自 `wiki/tools/pele/rule-w-pele.css`；每台電腦先跑一次 `wiki/tools/pele/install.sh`（Windows 用 `install.ps1`）；Pele 畫不出來才回退原生 Mermaid。Obsidian 筆記裡的區塊照舊由 Obsidian 畫，Pele 改不了它。
+
+### 規則 X：文件屬性（frontmatter）（v1.13）
+
+> vault 內**新建或被改到**的 `.md` 一律照所在位置填齊屬性：**共用 title、type、status、tags、created、updated 六欄**；wiki 頁面再加 domain、source（§4），maps／rules 加 domain，00-Inbox 裡 AI 寫的草稿加 domain、source（type 限 8 種、domain 沒合適的寫 `待定`），40-Resources 加 source。daily、個人日記、收件匣剪報與技能產出、封存、範本、技能套件、根目錄 `CLAUDE.md`／`README.md` 不查。詳細：`wiki/rules/rule-X-frontmatter.md`。
+
+**Why**：「寫完整」沒有定義，AI 補一半也會回報「已補上」；而且不能全 vault 一套欄位——收件匣的 `type` 是剪報分流記號、日誌與範本有自己的格式。**How to apply**：只管新建與這次改到的檔，舊檔改到才順手補；created 先找紀錄再用檔案時間；AI 不自己標 `stable`；說「補齊了」要逐欄列出（規則 T）。本模板沒附自動檢查，寫完自己照表對一次。
 
 ---
 
@@ -851,8 +873,8 @@ WHERE status = "draft"
 
 | 使用者說 | 你應該 |
 |---------|-------|
-| 「處理 00-Inbox/xxx」/「ingest xxx」 | 先跑規則 K Step 0 預檢 → 依分流結果 chain skill 或標準 ingest（§3.1）|
-| 裸貼 YT URL（無提示語）| 主動問「要做 YT 報告嗎」→ 跑 youtube-to-notebooklm skill |
+| 「處理 00-Inbox/xxx」/「ingest xxx」 | 先跑規則 K Step 0 預檢 → YouTube／GitHub 剪報、英文或被截斷的網頁**先另做報告＋查證表，再 ingest 報告**（規則 K §K.2）；繁中完整走標準 ingest（§3.1）|
+| 裸貼 YT URL（無提示語）| 主動問「要做 YT 報告嗎」→ **單支走本機 fast-path**（經驗法則 4）；多支跨來源才跑 youtube-to-notebooklm skill（NotebookLM）|
 | 「整理現有 entities」/「backfill」 | Mode B Backfill（§3.4）|
 | 「根據 wiki，問題 Y」 | Query（§3.2）|
 | 「巡一下 wiki」/「健康檢查」 | Lint（§3.3）|
@@ -860,14 +882,16 @@ WHERE status = "draft"
 | 「批次升 stable」/「審草稿」 | wiki-status-promote skill |
 | 「我加了一份新檔到 00-Inbox/」 | 等具體指示 ingest，**不要自動 ingest** |
 | 「整理一下這份」 | 問清楚是要 ingest 到 wiki/ 還是只是摘要 |
-| 動 `20-Projects/<name>/` 子目錄任何檔案 | **規則 Q**：先讀 `_<name>_MOC`（規則 O）→ show before write（規則 E）→ 動完同步 `_MOC` + 上游索引 → chat cite cascade（規則 P）|
+| 動 `20-Projects/<name>/` 子目錄任何檔案 | **規則 Q**：先讀 `_<name>_MOC`（規則 O）→ show before write（規則 E）→ 動完**改寫** `_MOC` 那一格／那一列（不追加，過程寫開發日誌）+ 上游索引 → chat cite cascade（規則 P）|
 | 動 `_MOC.md` / 含索引 `README.md` 所在層任何 .md 檔 | **規則 R**：動完 bump 該層 `_MOC` / README 的 frontmatter `updated:` 為當日 |
 | 寫「目前 / 現在 + 數字」的事實 | **規則 S**：先判快慢事實——快的加 `（as of YYYY-MM）` 或改存 pointer，不留無日期的現在式宣稱 |
 | 要說「完成 / 通過 / 全綠 / 沒問題」 | **規則 T**：攤開判準逐項對照，不得只給單一結論；任一項未滿足就不能標完成 |
 | 要寫 rubric／測試／驗收判準 | **規則 U**：自問四題——誰產生這個值／依據現行還是未實作／本案例前提下走得到嗎／能否排除旁路自證；走不到是假紅，分不出是假綠 |
 | 素材是 AI 轉錄產物（逐字稿 / AI 摘要 / 會議紀要）| **經驗法則 7**：專有名詞與數字逐項查證 + 掃虛構的「決策 / 行動項目」，entity 內建更正表 |
 | 「做個儀表板 / 報表 / 看板」 | **經驗法則 8**：先問「你打開這頁要回答什麼問題」，用問題順序排版面 |
-| 畫任何 Mermaid 圖（筆記或 HTML 報告）／改到含舊 Mermaid 圖的檔 | **規則 W**：第一行貼 `Templates/Mermaid 圖範本.md` 的共用開頭；流程圖每個節點都掛九類語意 class（圓角 `rx:10px`，一定要帶單位）；改到含舊圖的檔就順手換成新樣式；寫完在 Obsidian 預覽一次。**匯出、HTML 報告、給外部看的圖優先用 Pele 畫成 SVG／PNG**：`node wiki/tools/pele/render.mjs`（這台沒裝就先跑 `wiki/tools/pele/install.sh`）|
+| 畫任何 Mermaid 圖（筆記或 HTML 報告）／改到含舊 Mermaid 圖的檔 | **規則 W**：第一行貼 `40-Resources/Templates/Mermaid 圖範本.md` 的共用開頭；流程圖每個節點都掛九類語意 class（圓角 `rx:10px`，一定要帶單位）；改到含舊圖的檔就順手換成新樣式；寫完在 Obsidian 預覽一次。**匯出、HTML 報告、給外部看的圖優先用 Pele 畫成 SVG／PNG**：`node wiki/tools/pele/render.mjs`（這台沒裝就先跑 `wiki/tools/pele/install.sh`）|
+| **新建或改到 vault 任何 `.md`**（含收件匣草稿、專案文件） | **規則 X**：照所在位置填齊屬性——共用 title、type、status、tags、created、updated；wiki 頁面與收件匣草稿再加 domain、source，40-Resources 加 source；說「補齊了」要逐欄列出（規則 T）|
+| 要寫任何**事實性規格**（schema／欄位／API／外部系統流程） | **規則 O §O.2.5**：先 `grep -ril` 主題關鍵字查 `40-Resources/`、`wiki/entities/`，再看有無對應 skill——vault 可能已經寫過 |
 
 ---
 
@@ -947,9 +971,28 @@ open(p, encoding="utf-8")                  open(p)
 
 ⭐ **為什麼要區分**：曾踩過「護欄讀檔不轉換換行、寫檔卻轉一次」導致高扇入檔案整份行尾翻轉，也踩過「改成不轉換後，呼叫端自己拼字串又混進單獨換行」——**兩次是同一個設計錯誤：要求呼叫端自己組出正確行尾**。正解是**護欄自動偵測原檔風格並正規化**，而不是指望每個呼叫端都記得。🔴 **光有寫前護欄也不夠**：雲端多裝置同步時，別的寫入路徑仍可能繞過它整檔翻轉——護欄管得住用它的人，管不住繞過它的。
 
-### 鐵則 4：腳本式整檔重寫，不得直接開檔覆寫
+### 鐵則 4：腳本式整檔重寫，不得直接開檔覆寫（v1.13 分成雲端同步資料夾內外）
 
-> 先在記憶體完成內容生成**與目標編碼**；確認編碼成功後，寫入同目錄暫存檔，驗證可解碼及基本完整性，**再原子替換**。任何一步失敗都保留原檔不變。
+> 先在記憶體完成內容生成**與目標編碼**，並驗證可解碼及基本完整性；任何生成、轉義、編碼或驗證失敗，都必須在碰到目標檔之前停下、保留原檔不變。通過了才寫，寫法看檔案在哪裡：
+
+| 檔案在哪 | 怎麼寫 |
+|---|---|
+| **iCloud 等雲端同步資料夾裡** | **就地寫入**：寫前重讀、跟剛才讀到的比對（不同就停）→ 原檔備份到同步範圍外 → `open(p, "r+b")`、`seek(0)`、`write`、`truncate`、`flush`＋`fsync` → 讀回逐位元組比對，不符就用備份寫回。**不用暫存檔再改名**；編輯工具若是「寫新檔再換上」也算。新建檔不受限 |
+| **一般本機資料夾**（含 git working tree） | 同目錄暫存檔 → 驗證可解碼 → `os.replace` 原子替換；Edit／Write 照常用 |
+
+**雲端同步資料夾裡**：
+
+```python
+# ✅ 先編碼，再就地寫入、讀回比對                  # ❌ 錯：開檔即截斷，編碼失敗時原檔已毀
+data = new_text.encode("utf-8")  # 失敗就到此為止    open(p, "w", encoding="utf-8").write(new_text)
+assert p.read_bytes() == raw     # 有人動過就停
+bak.write_bytes(raw)             # 備份放同步範圍外
+with open(p, "r+b") as f:
+    f.seek(0); f.write(data); f.truncate(); f.flush(); os.fsync(f.fileno())
+assert p.read_bytes() == data    # 不符就用 bak 寫回
+```
+
+**一般本機資料夾**：
 
 ```python
 # ✅ 對：編碼成功才碰目標檔                    # ❌ 錯：開檔即截斷，編碼失敗時原檔已毀
@@ -960,9 +1003,11 @@ assert tmp.read_text(encoding="utf-8")        # 驗證可解碼
 os.replace(tmp, p)                            # 原子替換
 ```
 
-🔴 為什麼這條擋得住而「先算完再開檔」擋不住：改一份原始碼時，Python 字串裡的 `\uD800` 轉義被折疊成**真的孤兒代理字元** ⇒ 字串**生成成功** ⇒ 但 `open(p,'w')` **當場截斷檔案** ⇒ 才在 `write()` 的**編碼**那步炸掉 ⇒ 檔案損毀。
+🔴 **為什麼雲端同步資料夾裡不能先寫暫存檔再改名**：改名後雲端把它當成新的項目。維護者在 Windows 的 iCloud 實測：同一份檔每寫一次就換一個雲端項目，累積幾十個後被伺服器拒收，寫完約 2 分鐘檔案就被改名成「檔名 2.md」；就地寫入的項目 ID 則不變。⚠️ 就地寫入不是原子操作，寫到一半中斷會留下半份檔——所以「備份放同步範圍外」和「讀回比對」兩步不能省。
+
+🔴 為什麼「先編碼、才碰檔」擋得住而「先算完再開檔」擋不住：改一份原始碼時，Python 字串裡的 `\uD800` 轉義被折疊成**真的孤兒代理字元** ⇒ 字串**生成成功** ⇒ 但 `open(p,'w')` **當場截斷檔案** ⇒ 才在 `write()` 的**編碼**那步炸掉 ⇒ 檔案損毀。
 ⭐ **心法：失敗點與破壞點可以不在同一步。** 只要「開檔」早於「編碼」，中間那個縫就一直在。
-⚠️ 含 `\u` / `\U` / surrogate 轉義的程式碼，**優先用 Edit 逐段改**，別讓內容多經一層字串解析。適用範圍限**腳本式整檔重寫**，一般小幅 Edit 不必背這套流程。
+⚠️ 含 `\u` / `\U` / surrogate 轉義的程式碼，**一般資料夾優先用 Edit 逐段改；雲端同步資料夾裡先把內容存成同步範圍外的檔，腳本讀進來再寫**，別讓內容多經一層字串解析。適用範圍：一般資料夾＝腳本式整檔重寫（一般小幅 Edit 不必背這套流程）；雲端同步資料夾＝對既有檔的每一次寫入。
 
 ---
 
@@ -1044,7 +1089,7 @@ cssclasses: [wide]
 
 ### 15.1 預設視覺樣式
 
-新寫或被改到的 Mermaid 圖一律套規則 W（`wiki/rules/rule-W-mermaid-visual-style.md`）：深色分區面板、九類語意色、圓角粗體節點、直角連線；匯出與展示的圖用 Pele 畫成 SVG／PNG。程式碼從 `Templates/Mermaid 圖範本.md` 複製；上面三個語法地雷照舊適用。
+新寫或被改到的 Mermaid 圖一律套規則 W（`wiki/rules/rule-W-mermaid-visual-style.md`）：深色分區面板、九類語意色、圓角粗體節點、直角連線；匯出與展示的圖用 Pele 畫成 SVG／PNG。程式碼從 `40-Resources/Templates/Mermaid 圖範本.md` 複製；上面三個語法地雷照舊適用。
 
 ---
 
@@ -1076,7 +1121,7 @@ cssclasses: [wide]
 
 | 檔案 | 角色 | 何時讀 |
 |------|------|-------|
-| `wiki/PROGRESS.md` | 新 session 30 秒熱身（最頂層）| 每次新 session 必讀 |
+| `wiki/PROGRESS.md` | 狀態面板（最頂層）| 接續上次工作／查目前狀態時 |
 | [[Wiki_儀表板]] | Vault 全景快照（中層）| 想看數字 / 趨勢時 |
 | [[WIKI_TODO]] | 完整待辦清單（執行層）| 想排今天做什麼時 |
 | [[Wiki_健康度監控]] | Lint 趨勢專屬 | lint 跑完 / 想看健康度走向時 |

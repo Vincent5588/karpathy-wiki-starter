@@ -7,7 +7,7 @@ status: stable
 maintained_by: LLM
 parent: "[[CLAUDE]] §10"
 created: 2026-05-11
-updated: 2026-05-11
+updated: 2026-11-17
 ---
 
 ## 0. 版本歷程
@@ -39,7 +39,7 @@ updated: 2026-05-11
 ┌─────────────────────────────────────────────────────────────┐
 │  Layer 1：雲盤 vault（純檔案，跨機 sync）                  │
 │  ~/Library/Mobile Documents/.../my-wiki/（macOS iCloud 範例）│
-│  ├── *.md, .obsidian/, 00-50/, wiki/, Templates/           │
+│  ├── *.md, .obsidian/, 00-50/, wiki/                       │
 │  └── ❌ 不放 .git（解耦於 git）                              │
 │                                                              │
 │  ↕️ 雲盤自動 sync 跨多機（Mac / iPad / iPhone / PC）         │

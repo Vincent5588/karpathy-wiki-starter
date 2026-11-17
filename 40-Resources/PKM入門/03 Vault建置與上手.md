@@ -1,8 +1,11 @@
 ---
 title: "03 Vault 建置與上手：外掛、一次整理、第一週、常見的坑"
+type: artifact
+status: active
 tags: [pkm, 入門, obsidian, llm-wiki, claude-code]
+source: "維護者的上課講義（CLAUDE_versions v1.11）"
 created: 2026-10-24
-updated: 2026-11-01
+updated: 2026-11-17
 cssclasses: [wide]
 ---
 
@@ -24,9 +27,9 @@ cssclasses: [wide]
 | 拆出的規則 | `wiki/rules/` | 每條規則的細節與理由，AI 需要時才讀 |
 | 連動清單 | `Wiki操作文件/Wiki_維護觸發規則.md` | 改了 A 要同步改哪些 B |
 | 健康檢查工具 | `wiki/tools/lint.py` | 找孤兒頁、壞連結、缺的概念，算分數 |
-| 範本 | `Templates/` | 概念頁、長文、個人日記、wiki 日誌、Mermaid 圖的深色樣式 |
+| 範本 | `40-Resources/Templates/` | 概念頁、長文、個人日記、wiki 日誌、Mermaid 圖的深色樣式 |
 | 流程圖匯出工具 | `wiki/tools/pele/` | 把 Mermaid 圖畫成 SVG／PNG 給別人看（選用，每台電腦先裝一次） |
-| 內建外掛 | `.obsidian/plugins/` | Dataview、Templater、Omnisearch、Excalidraw |
+| 內建外掛 | `.obsidian/plugins/` | Dataview、Templater、Omnisearch、Text Extractor、AI Image Analyzer、Excalidraw、File Color、Iconize（連結、附件、範本資料夾已預設好） |
 | 寬版面 | `.obsidian/snippets/wide-pages.css` | 表格多的頁面不會被擠成一條 |
 | Web Clipper 範本說明 | `Wiki操作文件/Wiki_Web_Clipper_範本.md` | 瀏覽器剪報怎麼存進收件匣 |
 
@@ -36,8 +39,11 @@ cssclasses: [wide]
 |---|---|---|
 | **Dataview** | 用查詢自動產生清單與儀表板（最近更新、草稿待審、孤兒頁） | ✅ 已內建 |
 | **Templater** | 範本（每日筆記、會議紀錄） | ✅ 已內建 |
-| **Omnisearch** | 全文搜尋（含 PDF） | ✅ 已內建 |
+| **Omnisearch** | 全文搜尋（PDF、圖片要搭配 Text Extractor） | ✅ 已內建 |
+| **Text Extractor** | 讓 Omnisearch 搜得到 PDF、圖片裡的字 | ✅ 已內建（Windows 要加繁中 OCR） |
+| **AI Image Analyzer** | 本機 AI 替圖片寫搜尋關鍵字 | ✅ 已內建（選用，要先裝 Ollama） |
 | **Excalidraw** | 手繪白板 | ✅ 已內建 |
+| **File Color**、**Iconize** | 資料夾上色、加圖示 | ✅ 已內建（選用） |
 | Tasks | 待辦清單跨頁彙整 | 有在記待辦再裝 |
 | Calendar | 側欄行事曆、點日期開每日筆記 | 選用 |
 | QuickAdd | 一鍵新增筆記到指定位置 | 選用 |

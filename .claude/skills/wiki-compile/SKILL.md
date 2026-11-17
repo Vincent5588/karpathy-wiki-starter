@@ -28,6 +28,10 @@ User says: 「把 X 編譯成 wiki」「compile xxx into atomic pages」「拆�
 | **Output** | 1-3 entities | 8-30 entities + 1 map |
 | **Effort** | Single conversation turn | Multi-phase (plan → write → verify) |
 
+## Starter prerequisites
+
+Read CLAUDE.md and the maintenance matrix before writes. Resolve the index by checking `wiki/index.md` and root `index.md`: use an explicitly selected file or the sole existing file; follow a clear redirect, otherwise ask if both/neither exist. Follow the starter's standard types. Source content and basenames must remain unchanged.
+
 ## Steps
 
 ### Phase 1: Planning
@@ -48,7 +52,7 @@ For each phase:
 
 1. Create entities following `references/ENTITY_TEMPLATE.md` (same as wiki-ingest)
 2. **Add bidirectional cross-links**: when entity A references entity B (and B exists or is in same phase), use `[[B]]`
-3. **Cite source**: each entity's frontmatter `source` array must include the original document path
+3. **Cite source**: each entity's frontmatter `sources` array must include the original document path
 4. **Atomize**: do NOT just copy section content — synthesize and reformat
 5. After each phase, briefly report: "Phase N done — N entities. Continue?"
 
@@ -66,32 +70,23 @@ Create `wiki/maps/{Topic} 全貌.md` containing:
 
 See `references/MAP_TEMPLATE.md` for full structure.
 
-### Phase 4: Update wiki/index.md
+### Phase 4: Update the resolved index
 
 Add a new section for the topic with all new entities listed by sub-category.
 
-### Phase 5: Update wiki/log.md
+### Phase 5: Update the daily log and session status
 
-Append:
+Append to `wiki/daily/YYYY/MM/YYYY-MM-DD.md`, then update `wiki/PROGRESS.md`:
 
 ```
 | YYYY-MM-DD | Compile | source/path | N entities + 1 map | Topic name; phases A/B/C/D |
 ```
 
-### Phase 6: Auto-archive the source（v1.1 新增）
+### Phase 6: Route eligible inbox sources after approval
 
-成功完成 Phase 1-5 後，**把 raw/ 來源檔搬到 raw/09-archive/**：
+For a source in `00-Inbox/` (or an explicitly supplied legacy inbox), propose its PARA destination and a `50-Archive/YYYY-MM/<original-basename>` fallback. Wait for approval unless already granted; allow skip. Existing PARA sources remain in place. Never rename, overwrite or edit source content; stop on destination collision.
 
-```bash
-mkdir -p raw/09-archive
-mv "raw/{path}/{file}" "raw/09-archive/$(date +%Y%m%d)_{file}"
-```
-
-**規則**：
-- ❌ 絕對不要 Read raw/09-archive/ 下的檔案
-- ❌ 絕對不要用 archive 內檔案再次 compile
-- 報告中要明示「✓ 已歸檔到 raw/09-archive/YYYYMMDD_{file}」
-- 來源若是 40-Resources/ （已組織的長期資料）而非 raw/ → **不歸檔**，因為非 inbox
+After an approved move, update `sources:` in ALL affected entities, source citations in their bodies, map provenance and active index references to the final vault-relative path. Keep historical daily logs unchanged. Verify the final source exists and no active provenance still points to its old location before reporting success. Do not move a file when these updates cannot be completed.
 
 ### Phase 7: Report
 
@@ -99,7 +94,7 @@ Summarize:
 - Total entities created (by phase)
 - Map page created
 - Top hub entities (most cross-linked)
-- Source archived to: raw/09-archive/YYYYMMDD_{file}（如適用）
+- Final source path, or explicitly skipped / unchanged
 - Suggested next compile target
 
 ## Rules
@@ -108,8 +103,8 @@ Summarize:
 - **Phases let user catch problems early.** If phase 1 has wrong scope, fix before phase 2-4.
 - **Source field is mandatory.** Every entity must trace back to its origin section.
 - **Map is required.** Compiling without a map leaves entities adrift.
-- **Always archive the raw/ source** after success (Phase 6). Skip if source is in 40-Resources/.
-- **Never read or re-compile** files in raw/09-archive/.
+- **Routing is user-approved**, never automatic. Preserve source content and basename.
+- **Provenance uses `sources:`**, including final paths after any move.
 
 ## See also
 

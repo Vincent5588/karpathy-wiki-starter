@@ -1,13 +1,21 @@
 ---
-title: "規則 W：Mermaid 視覺規範（Obsidian Dark — Grouped Workflow）"
-description: "vault 內新寫或被改到的 Mermaid 圖一律套同一套深色配色：共用開頭（所有圖種）＋九類語意色與圓角（流程圖）＋深藍／深紫分區面板；Obsidian 筆記與 HTML 報告同一套。匯出與展示的成品優先用 Pele 畫成 SVG／PNG。"
+title: 規則 W：Mermaid 視覺規範（Obsidian Dark — Grouped Workflow）
+description: vault 內新寫或被改到的 Mermaid 圖一律套同一套深色配色：共用開頭（所有圖種）＋九類語意色與圓角（流程圖）＋深藍／深紫分區面板；Obsidian 筆記與 HTML 報告同一套。匯出與展示的成品優先用 Pele 畫成 SVG／PNG。
 type: rule
 domain: wiki
 status: stable
-tags: [rule, mermaid, 視覺規範, obsidian, pele]
+tags:
+  - rule
+  - mermaid
+  - 視覺規範
+  - obsidian
+  - pele
 created: 2026-11-01
 updated: 2026-11-01
-aliases: [規則 W, Mermaid 視覺規範, Obsidian Dark — Grouped Workflow]
+aliases:
+  - 規則 W
+  - Mermaid 視覺規範
+  - Obsidian Dark — Grouped Workflow
 ---
 
 # 規則 W：Mermaid 視覺規範（Obsidian Dark — Grouped Workflow）

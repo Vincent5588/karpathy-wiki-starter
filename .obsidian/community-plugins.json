@@ -2,5 +2,9 @@
   "obsidian-excalidraw-plugin",
   "templater-obsidian",
   "dataview",
-  "omnisearch"
+  "omnisearch",
+  "obsidian-file-color",
+  "obsidian-icon-folder",
+  "text-extractor",
+  "ai-image-analyzer"
 ]
